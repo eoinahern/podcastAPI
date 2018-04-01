@@ -12,10 +12,6 @@ type EpisodeDB struct {
 	*gorm.DB
 }
 
-func getEpisode(email string, name string, ref string) *models.Episode {
-	return nil
-}
-
 func (DB *EpisodeDB) GetAllEpisodes(podcastid int) []models.Episode {
 
 	var episodes []models.Episode

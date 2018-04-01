@@ -2,6 +2,6 @@ package repository
 
 import "testing"
 
-func test(t *testing.T) {
+func TestSomething(t *testing.T) {
 
 }
