@@ -29,7 +29,8 @@ func init() {
 
 func TestExist(t *testing.T) {
 
-	mocksss.ExpectQuery(`SELECT count(\\*)`).WithArgs("hello")
+	row := sqlmock.NewRows([]string{"user_name"}).AddRow("hello")
+	mocksss.ExpectQuery(`SELECT count(\\*)`).WithArgs("hello").WillReturnRows(row)
 	userDB.CheckExist("hello")
 
 	if err := mocksss.ExpectationsWereMet(); err != nil {
