@@ -10,10 +10,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/eoinahern/my_podcast_api/models"
-	"github.com/eoinahern/my_podcast_api/repository"
-	"github.com/eoinahern/my_podcast_api/util"
-	"github.com/eoinahern/my_podcast_api/validation"
+	"github.com/eoinahern/podcastAPI/models"
+	"github.com/eoinahern/podcastAPI/repository"
+	"github.com/eoinahern/podcastAPI/util"
+	"github.com/eoinahern/podcastAPI/validation"
 
 	"github.com/gorilla/mux"
 )

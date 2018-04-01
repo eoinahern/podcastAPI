@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/smtp"
 
-	"github.com/eoinahern/my_podcast_api/models"
+	"github.com/eoinahern/podcastAPI/models"
 )
 
 const (

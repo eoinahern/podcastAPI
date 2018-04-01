@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/eoinahern/my_podcast_api/models"
+	"github.com/eoinahern/podcastAPI/models"
 
-	"github.com/eoinahern/my_podcast_api/util"
+	"github.com/eoinahern/podcastAPI/util"
 )
 
 /* stole this middleware implementation from https://medium.com/@matryer/writing-middleware-in-golang-and-how-go-makes-it-so-much-fun-4375c1246e81

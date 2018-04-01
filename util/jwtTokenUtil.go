@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/eoinahern/my_podcast_api/repository"
+	"github.com/eoinahern/podcastAPI/repository"
 
 	jwt "github.com/dgrijalva/jwt-go"
 )

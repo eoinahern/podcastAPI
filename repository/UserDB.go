@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/eoinahern/my_podcast_api/models"
+	"github.com/eoinahern/podcastAPI/models"
 
 	"github.com/jinzhu/gorm"
 	//_ "github.com/jinzhu/gorm/dialects/mysql"
