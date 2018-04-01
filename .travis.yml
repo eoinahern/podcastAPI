@@ -2,10 +2,3 @@ language: go
 
 go:
   - "1.7.1"
-
-notifications:
-  email:
-    recipients:
-      - "eoinpahern@yahoo.co.uk"
-      on_success: always
-      on_failure: always

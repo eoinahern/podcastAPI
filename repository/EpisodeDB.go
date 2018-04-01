@@ -41,7 +41,3 @@ func (DB *EpisodeDB) GetLastEpisode() models.Episode {
 	DB.Last(&episode)
 	return episode
 }
-
-func UpdateEpisode(episode *models.Episode) {
-
-}
