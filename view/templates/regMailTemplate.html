@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="viewport" content="width=device-width"/>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Registration Email</title>
+<style type="text/css">
+
+.header {
+  text-align: center;
+  font-family: sans-serif;
+}
+.footer {
+  text-align: center;
+  font-family: sans-serif;
+  font-weight: bold;
+}
+.footer a {
+  color: #FFFFFF;
+  background-color: coral;
+  text-decoration: none;
+  padding: 10px 30px 10px 30px;
+}
+.message {
+  text-align: center;
+  font-family: sans-serif;
+}
+</style>
+</head>
+<body>
+  <table bgcolor="#FFFFFF" width="100%" cellspacing="0" cellpadding="0">
+    <tr class="header"><td><h2>Registration</h2></td></tr>
+    </br>
+    <tr class="message"><td style="padding:20px;"><p>hello {{.User}}</p>
+    <p>Thank you for signing up to <b>The Podcast API</b> please click on the link below to confirm your subscription. </p></td></tr>
+    </br>
+    <tr class="footer"><td><h3><a href="http://localhost:8080/confirm?user={{.User}}&token={{.Token}}" target="_blank">Confirm Registration</a></h3></td></tr>
+  <!--  <tr class="footer">
+    <td>
+    <form enctype="application/json" action="http://localhost:8080/registercon" method="post" target="_blank">
+       <input name="user" value={{.User}} type="hidden" >
+       <input name="token" value={{.Token}} type="hidden">
+       <input type="submit" value="Confirm Registration" >
+    </form>
+  </td>
+</tr>-->
+
+  </table>
+</body>
+</html>

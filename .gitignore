@@ -1,0 +1,4 @@
+/files/
+config.json
+smtpConfig.json
+*.pem
