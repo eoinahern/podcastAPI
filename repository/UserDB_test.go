@@ -27,12 +27,9 @@ func init() {
 
 }
 
-func tests(t *testing.T) {
+func TestExist(t *testing.T) {
 
 	userDB.CheckExist("hello")
-
-	mocksss.ExpectBegin()
-	mocksss.ExpectQuery(`^SELECT * from users WHERE username = "hello"?`)
 
 	if err := mocksss.ExpectationsWereMet(); err != nil {
 		t.Errorf("error not met %s", err)
