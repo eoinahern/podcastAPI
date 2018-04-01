@@ -29,10 +29,11 @@ func init() {
 
 func TestExist(t *testing.T) {
 
+	mocksss.ExpectQuery(`SELECT count(\\*)`).WithArgs("hello")
 	userDB.CheckExist("hello")
 
 	if err := mocksss.ExpectationsWereMet(); err != nil {
-		t.Errorf("error not met %s", err)
+		t.Errorf("err %s", err)
 	}
 
 }
