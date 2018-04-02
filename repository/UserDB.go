@@ -30,12 +30,13 @@ func (DB *UserDB) CheckExist(email string) bool {
 //ValidateUserPlusRegToken : check if user with specific registration exists in table.
 func (DB *UserDB) ValidateUserPlusRegToken(email string, regToken string) bool {
 
-	/*var count int
-	DB.Model(&models.User{}).Where("user_name = ? AND reg_token = ?", email, regToken).Count(&count)
+	var count int
+	row := DB.QueryRow("SELECT count(*) FROM users WHERE user_name = ? AND reg_token = ?", email, regToken)
+	row.Scan(&count)
 
 	if count == 1 {
 		return true
-	}*/
+	}
 
 	return false
 }

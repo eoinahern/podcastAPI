@@ -119,11 +119,35 @@ func TestGetUser(t *testing.T) {
 	mock.ExpectQuery(`SELECT \* FROM users`).WithArgs("eoin").WillReturnRows(row)
 	user := userDB.GetUser("eoin")
 
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("err %s", err)
+	}
+
 	assert.Equal(t, user.UserName, "eoin")
 	assert.Equal(t, user.Password, "pass")
 
 }
 
 func TestValidateUserPlusRegToken(t *testing.T) {
+
+	db, mock, err := sqlmock.New()
+
+	defer db.Close()
+
+	if err != nil {
+		panic(err)
+	}
+
+	userDB := UserDB{db}
+	rows := sqlmock.NewRows([]string{"user_name"}).AddRow(1)
+
+	mock.ExpectQuery(`SELECT`).WithArgs("hello", "token").WillReturnRows(rows)
+	val := userDB.ValidateUserPlusRegToken("hello", "token")
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("err %s", err)
+	}
+
+	assert.Equal(t, true, val)
 
 }
