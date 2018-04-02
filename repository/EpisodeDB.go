@@ -1,39 +1,37 @@
 package repository
 
 import (
-	"log"
+	"database/sql"
 
 	"github.com/eoinahern/podcastAPI/models"
-
-	"github.com/jinzhu/gorm"
 )
 
 type EpisodeDB struct {
-	*gorm.DB
+	*sql.DB
 }
 
 func (DB *EpisodeDB) GetAllEpisodes(podcastid int) []models.Episode {
 
-	var episodes []models.Episode
+	/*var episodes []models.Episode
 	DB.Where("pod_id = ?", podcastid).Find(&episodes)
-	return episodes
+	return episodes*/
 }
 
 func (DB *EpisodeDB) AddEpisode(episode models.Episode) error {
 
-	db := DB.Save(&episode)
+	/*db := DB.Save(&episode)
 
 	if db.Error != nil {
 		log.Println(db.Error)
 	}
 
-	return db.Error
+	return db.Error*/
 
 }
 
 func (DB *EpisodeDB) GetLastEpisode() models.Episode {
 
-	var episode models.Episode
+	/*var episode models.Episode
 	DB.Last(&episode)
-	return episode
+	return episode*/
 }

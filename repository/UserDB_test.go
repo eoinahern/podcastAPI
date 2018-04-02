@@ -16,7 +16,7 @@ var userDB UserDB
 func init() {
 
 	db, mock, _ = sqlmock.New()
-	gormDB, err := gorm.Open("mysql", db)
+	gormDB, err := sql.Open("mysql", db)
 
 	if err != nil {
 		panic(err)
@@ -43,5 +43,13 @@ func TestExist(t *testing.T) {
 }
 
 func TestSetVerified(t *testing.T) {
+
+}
+
+func TestValidatePassAndUser(t *testing.T) {
+
+}
+
+func TestInsert(t *testing.T) {
 
 }

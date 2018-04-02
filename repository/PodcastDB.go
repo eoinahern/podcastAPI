@@ -1,16 +1,15 @@
 package repository
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 
 	"github.com/eoinahern/podcastAPI/models"
-
-	"github.com/jinzhu/gorm"
 )
 
 type PodcastDB struct {
-	*gorm.DB
+	*sql.DB
 }
 
 func (DB *PodcastDB) GetAll() []models.SecurePodcast {

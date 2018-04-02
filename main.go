@@ -7,6 +7,10 @@ import (
 	"net/http"
 	"os"
 
+	"database/sql"
+
+	_ "github.com/go-sql-driver/mysql"
+
 	"github.com/eoinahern/podcastAPI/validation"
 
 	"github.com/eoinahern/podcastAPI/models"
@@ -17,8 +21,6 @@ import (
 	"github.com/eoinahern/podcastAPI/middleware"
 
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 func main() {
@@ -34,7 +36,11 @@ func main() {
 	decoder.Decode(&config)
 
 	conf := fmt.Sprintf("%s:%s@/%s", config.User, config.Password, config.Schema)
-	db, err := gorm.Open("mysql", conf)
+	db, err := sql.Open("mysql", conf)
+
+	if pingErr := db.Ping(); pingErr != nil {
+		panic("error connecting db" + err)
+	}
 
 	if err != nil {
 		fmt.Println(err)
