@@ -9,14 +9,13 @@ import (
 )
 
 var db *sql.DB
-var mocksss sqlmock.Sqlmock
+var mock sqlmock.Sqlmock
 var gormDB *gorm.DB
 var userDB UserDB
 
 func init() {
 
-	db, mocksss, _ = sqlmock.New()
-
+	db, mock, _ = sqlmock.New()
 	gormDB, err := gorm.Open("mysql", db)
 
 	if err != nil {
@@ -30,10 +29,10 @@ func init() {
 func TestExist(t *testing.T) {
 
 	row := sqlmock.NewRows([]string{"user_name"}).AddRow("hello")
-	mocksss.ExpectQuery(`SELECT count(\\*)`).WithArgs("hello").WillReturnRows(row)
+	mock.ExpectQuery(`SELECT count\(\*\) FROM`).WithArgs("hello").WillReturnRows(row)
 	userDB.CheckExist("hello")
 
-	if err := mocksss.ExpectationsWereMet(); err != nil {
+	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("err %s", err)
 	}
 

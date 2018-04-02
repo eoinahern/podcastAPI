@@ -18,6 +18,7 @@ type UserDB struct {
 //CheckExist : check user exists in table by users email address.
 func (DB *UserDB) CheckExist(email string) bool {
 
+	DB.LogMode(true)
 	var count int
 	DB.Model(&models.User{}).Where("user_name = ?", email).Count(&count)
 
