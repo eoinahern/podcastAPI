@@ -104,12 +104,13 @@ func (DB *UserDB) Insert(user *models.User) {
 //GetUser returns a user based on its email.
 func (DB *UserDB) GetUser(email string) models.User {
 
-	/*var user models.User
-	DB.Where("user_name = ?", email).First(&user)
-	return user*/
-	return models.User{}
-}
+	var user models.User
+	row := DB.QueryRow("SELECT * FROM users WHERE user_name = ?", email)
+	err := row.Scan(&user.UserName, &user.Verified, &user.Password, &user.RegToken)
 
-func (DB *UserDB) delete(email string) bool {
-	return true
+	if err != nil {
+		log.Println(err)
+	}
+
+	return user
 }
