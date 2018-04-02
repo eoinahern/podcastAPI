@@ -18,18 +18,19 @@ func TestExist(t *testing.T) {
 
 	if err != nil {
 		panic(err)
-	}
+	} //helper func
 
 	userDb := UserDB{db}
-	row := sqlmock.NewRows([]string{"user_name"})
+	rows := sqlmock.NewRows([]string{"user_name"}).AddRow(1)
 
-	row.AddRow("hello")
-	mock.ExpectQuery(`SELECT`).WithArgs("hello")
-	userDb.CheckExist("hello")
+	mock.ExpectQuery(`SELECT`).WithArgs("hello").WillReturnRows(rows)
+	val := userDb.CheckExist("hello")
 
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("err %s", err)
 	}
+
+	assert.Equal(t, true, val)
 
 }
 

@@ -16,14 +16,16 @@ type UserDB struct {
 //CheckExist : check user exists in table by users email address.
 func (DB *UserDB) CheckExist(email string) bool {
 
-	/*var count int
-	DB.Model(&models.User{}).Where("user_name = ?", email).Count(&count)
+	var count int
+	rows := DB.QueryRow("SELECT count(*) FROM users WHERE user_name = ?", email)
+	rows.Scan(&count)
 
-	if count >= 1 {
+	if count == 1 {
 		return true
-	}*/
+	}
 
 	return false
+
 }
 
 //ValidateUserPlusRegToken : check if user with specific registration exists in table.
