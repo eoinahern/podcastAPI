@@ -15,6 +15,7 @@ func (DB *EpisodeDB) GetAllEpisodes(podcastid int) []models.Episode {
 	/*var episodes []models.Episode
 	DB.Where("pod_id = ?", podcastid).Find(&episodes)
 	return episodes*/
+	return nil
 }
 
 func (DB *EpisodeDB) AddEpisode(episode models.Episode) error {
@@ -26,6 +27,7 @@ func (DB *EpisodeDB) AddEpisode(episode models.Episode) error {
 	}
 
 	return db.Error*/
+	return nil
 
 }
 
@@ -33,5 +35,5 @@ func (DB *EpisodeDB) GetLastEpisode() models.Episode {
 
 	/*var episode models.Episode
 	DB.Last(&episode)
-	return episode*/
+	return episode*/return models.Episode{}
 }

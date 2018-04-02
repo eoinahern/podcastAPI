@@ -1,38 +1,29 @@
 package repository
 
 import (
-	"database/sql"
 	"testing"
 
-	"github.com/jinzhu/gorm"
+	"github.com/eoinahern/podcastAPI/models"
+
+	_ "github.com/go-sql-driver/mysql"
+
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 )
 
-var db *sql.DB
-var mock sqlmock.Sqlmock
-var gormDB *gorm.DB
-var userDB UserDB
+func TestExist(t *testing.T) {
 
-func init() {
-
-	db, mock, _ = sqlmock.New()
-	gormDB, err := sql.Open("mysql", db)
+	db, mock, err := sqlmock.New()
 
 	if err != nil {
 		panic(err)
 	}
 
-	userDB = UserDB{gormDB}
-
-}
-
-func TestExist(t *testing.T) {
-
+	userDb := UserDB{db}
 	row := sqlmock.NewRows([]string{"user_name"})
 
 	row.AddRow("hello")
-	mock.ExpectQuery(`SELECT`).WithArgs("hello").WillReturnRows(row)
-	userDB.CheckExist("hello")
+	mock.ExpectQuery(`SELECT`).WithArgs("hello")
+	userDb.CheckExist("hello")
 
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("err %s", err)
@@ -51,5 +42,24 @@ func TestValidatePassAndUser(t *testing.T) {
 }
 
 func TestInsert(t *testing.T) {
+
+	db, mock, err := sqlmock.New()
+
+	defer db.Close()
+
+	if err != nil {
+		panic(err)
+	}
+
+	userDB := UserDB{db}
+	mock.ExpectPrepare("INSERT into users")
+	mock.ExpectExec("INSERT into users").WithArgs("eoin", true, "pass", "boo").WillReturnResult(sqlmock.NewResult(1, 1))
+
+	user := &models.User{UserName: "eoin", Verified: true, Password: "pass", RegToken: "boo"}
+	userDB.Insert(user)
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("err %s", err)
+	}
 
 }

@@ -79,7 +79,7 @@ func (DB *UserDB) Insert(user *models.User) {
 		log.Fatal(err)
 	}
 
-	res, err := stmt.Exec(user.UserName, user.Verified, user.Password, user.RegToken)
+	_, err = stmt.Exec(user.UserName, user.Verified, user.Password, user.RegToken)
 
 	if err != nil {
 		log.Fatal(err)
@@ -90,9 +90,10 @@ func (DB *UserDB) Insert(user *models.User) {
 //GetUser returns a user based on its email.
 func (DB *UserDB) GetUser(email string) models.User {
 
-	var user models.User
+	/*var user models.User
 	DB.Where("user_name = ?", email).First(&user)
-	return user
+	return user*/
+	return models.User{}
 }
 
 func (DB *UserDB) delete(email string) bool {
