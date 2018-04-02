@@ -65,18 +65,18 @@ func (DB *PodcastDB) UpdatePodcastNumEpisodes(id uint) {
 }
 
 //CreatePodcast : save podcast to database
-func (DB *PodcastDB) CreatePodcast(podcast *models.Podcast) *error {
+func (DB *PodcastDB) CreatePodcast(podcast *models.Podcast) error {
 
-	stmt, err := DB.Prepare("INSERT INTO podcasts(user_email, name, icon, details) VALUES(?,?,?,?)")
+	stmt, err := DB.Prepare("INSERT INTO podcasts(user_email, name, icon, location, details) VALUES(?,?,?,?,?)")
 
 	if err != nil {
 		log.Println(err)
 	}
 
-	res, err := stmt.Exec(podcast.UserEmail, podcast.Name, podcast.Icon, podcast.Details)
+	res, err := stmt.Exec(podcast.UserEmail, podcast.Name, podcast.Icon, podcast.Location, podcast.Details)
 
 	rows, _ := res.RowsAffected()
 	fmt.Println(fmt.Sprintf("num rows affected %s", string(rows)))
 
-	return &err
+	return err
 }
