@@ -60,6 +60,7 @@ func (DB *UserDB) SetVerified(username string, token string) {
 		log.Println(err)
 	}
 
+	defer stmt.Close()
 	_, err = stmt.Exec(true, username, token)
 
 	if err != nil {
@@ -94,6 +95,7 @@ func (DB *UserDB) Insert(user *models.User) {
 		log.Fatal(err)
 	}
 
+	defer stmt.Close()
 	_, err = stmt.Exec(user.UserName, user.Verified, user.Password, user.RegToken)
 
 	if err != nil {

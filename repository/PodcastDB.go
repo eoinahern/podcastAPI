@@ -73,6 +73,7 @@ func (DB *PodcastDB) CreatePodcast(podcast *models.Podcast) error {
 		log.Println(err)
 	}
 
+	defer stmt.Close()
 	res, err := stmt.Exec(podcast.UserEmail, podcast.Icon, podcast.Name, podcast.Location, podcast.Details)
 
 	rows, _ := res.RowsAffected()
