@@ -39,7 +39,7 @@ func main() {
 	db, err := sql.Open("mysql", conf)
 
 	if pingErr := db.Ping(); pingErr != nil {
-		panic("error connecting db" + err)
+		panic("error connecting db " + err.Error())
 	}
 
 	if err != nil {
@@ -52,15 +52,15 @@ func main() {
 	passEncryptUtil := &util.PasswordEncryptUtil{}
 	emailValidator := &validation.EmailValidation{}
 	fileHelperUtil := &util.FileHelperUtil{}
-	userDB := &repository.UserDB{db}
-	episodeDB := &repository.EpisodeDB{db}
-	podcastDB := &repository.PodcastDB{db}
+	userDB := &repository.UserDB{DB: db}
+	episodeDB := &repository.EpisodeDB{DB: db}
+	podcastDB := &repository.PodcastDB{DB: db}
 	jwtTokenUtil := &util.JwtTokenUtil{SigningKey: config.SigningKey, DB: userDB}
 	regMailHelper := &util.MailRequest{SenderId: "mypodcastapi@gmail.com", BodyLocation: "view/templates/regMailTemplate.html"}
 
-	db.AutoMigrate(&models.User{}, &models.Podcast{}, &models.Episode{})
-	db.Model(&models.Podcast{}).AddForeignKey("user_email", "users(user_name)", "CASCADE", "CASCADE")
-	db.Model(&models.Episode{}).AddForeignKey("pod_id", "podcasts(podcast_id)", "CASCADE", "CASCADE")
+	//db.AutoMigrate(&models.User{}, &models.Podcast{}, &models.Episode{})
+	//db.Model(&models.Podcast{}).AddForeignKey("user_email", "users(user_name)", "CASCADE", "CASCADE")
+	//db.Model(&models.Episode{}).AddForeignKey("pod_id", "podcasts(podcast_id)", "CASCADE", "CASCADE")
 
 	defer db.Close()
 
