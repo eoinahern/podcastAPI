@@ -13,6 +13,7 @@ import (
 func TestExist(t *testing.T) {
 
 	db, mock, err := sqlmock.New()
+	defer db.Close()
 
 	if err != nil {
 		panic(err)
@@ -28,12 +29,25 @@ func TestExist(t *testing.T) {
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("err %s", err)
 	}
-
-	//assert.Equal(t, true, val)
-
 }
 
 func TestSetVerified(t *testing.T) {
+
+	db, mock, err := sqlmock.New()
+
+	defer db.Close()
+
+	if err != nil {
+		panic(err)
+	}
+
+	userDB := UserDB{db}
+	mock.ExpectQuery(`SELECT \* FROM users`).WithArgs("eoin", "12345")
+	userDB.SetVerified("eoin", "12345")
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("err %s", err)
+	}
 
 }
 

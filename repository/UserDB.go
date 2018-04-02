@@ -42,6 +42,10 @@ func (DB *UserDB) ValidateUserPlusRegToken(email string, regToken string) bool {
 //SetVerified : set user with specific token and email to be verified in table.
 func (DB *UserDB) SetVerified(username string, token string) {
 
+	var user models.User
+	row := DB.QueryRow("SELECT * FROM users WHERE user_name = ? AND reg_token = ?", username, token)
+	row.Scan(&user.UserName, &user.Verified, &user.Password, &user.RegToken)
+
 	/*var user models.User
 	DB.Where("user_name = ? AND reg_token = ?", username, token).First(&user)
 	user.Verified = true
