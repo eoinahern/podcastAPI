@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/eoinahern/podcastAPI/models"
+	"github.com/stretchr/testify/assert"
 
 	_ "github.com/go-sql-driver/mysql"
 
@@ -29,6 +30,7 @@ func TestExist(t *testing.T) {
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("err %s", err)
 	}
+
 }
 
 func TestSetVerified(t *testing.T) {
@@ -52,6 +54,26 @@ func TestSetVerified(t *testing.T) {
 }
 
 func TestValidatePassAndUser(t *testing.T) {
+
+	db, mock, err := sqlmock.New()
+
+	defer db.Close()
+
+	if err != nil {
+		panic(err)
+	}
+
+	userDB := UserDB{db}
+
+	row := sqlmock.NewRows([]string{"user_name", "verified", "password", "reg_token"}).AddRow("eoin", true, "pass", "token")
+	mock.ExpectQuery(`SELECT \* FROM users WHERE user_name`).WithArgs("eoin", "pass").WillReturnRows(row)
+	val := userDB.ValidatePasswordAndUser("eoin", "pass")
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("err %s", err)
+	}
+
+	assert.Equal(t, true, val)
 
 }
 

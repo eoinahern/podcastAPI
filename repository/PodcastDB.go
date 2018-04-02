@@ -73,5 +73,5 @@ func (DB *PodcastDB) CreatePodcast(podcast *models.Podcast) *error {
 		}
 
 		return db.Error*/
-	return new(error)
+	return nil
 }
