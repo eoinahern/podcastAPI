@@ -28,12 +28,20 @@ func init() {
 
 func TestExist(t *testing.T) {
 
-	row := sqlmock.NewRows([]string{"user_name"}).AddRow("hello")
-	mock.ExpectQuery(`SELECT count\(\*\) FROM`).WithArgs("hello").WillReturnRows(row)
+	row := sqlmock.NewRows([]string{"user_name"})
+
+	row.AddRow("hello")
+	mock.ExpectQuery(`SELECT`).WithArgs("hello").WillReturnRows(row)
 	userDB.CheckExist("hello")
 
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("err %s", err)
 	}
+
+	//assert.Equal(t, true, val)
+
+}
+
+func TestSetVerified(t *testing.T) {
 
 }
