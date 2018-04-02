@@ -2,6 +2,8 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
+	"log"
 
 	"github.com/eoinahern/podcastAPI/models"
 )
@@ -65,13 +67,16 @@ func (DB *PodcastDB) UpdatePodcastNumEpisodes(id uint) {
 //CreatePodcast : save podcast to database
 func (DB *PodcastDB) CreatePodcast(podcast *models.Podcast) *error {
 
-	/*	db := DB.Save(podcast)
+	stmt, err := DB.Prepare("INSERT INTO podcasts(user_email, name, icon, details) VALUES(?,?,?,?)")
 
-		if db.Error != nil {
-			fmt.Println(db.Error)
-			log.Println(db.Error)
-		}
+	if err != nil {
+		log.Println(err)
+	}
 
-		return db.Error*/
-	return nil
+	res, err := stmt.Exec(podcast.UserEmail, podcast.Name, podcast.Icon, podcast.Details)
+
+	rows, _ := res.RowsAffected()
+	fmt.Println(fmt.Sprintf("num rows affected %s", string(rows)))
+
+	return &err
 }
