@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/eoinahern/podcastAPI/models"
-	//_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 //UserDB : used to do CRUD operations on the users DB table.
@@ -46,16 +45,25 @@ func (DB *UserDB) SetVerified(username string, token string) {
 
 	var user models.User
 	row := DB.QueryRow("SELECT * FROM users WHERE user_name = ? AND reg_token = ?", username, token)
-	row.Scan(&user.UserName, &user.Verified, &user.Password, &user.RegToken)
+	err := row.Scan(&user.UserName, &user.Verified, &user.Password, &user.RegToken)
 
-	/*var user models.User
-	DB.Where("user_name = ? AND reg_token = ?", username, token).First(&user)
+	if err != nil {
+		log.Println(err)
+	}
+
 	user.Verified = true
-	db := DB.Save(&user)*/
 
-	/*if db.Error != nil {
-		log.Println(db.Error)
-	}*/
+	stmt, err := DB.Prepare("UPDATE users SET verified = ? WHERE user_name= ? AND reg_token = ?")
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	_, err = stmt.Exec(true, username, token)
+
+	if err != nil {
+		log.Println(err)
+	}
 
 }
 

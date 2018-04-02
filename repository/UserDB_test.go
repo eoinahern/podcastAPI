@@ -45,7 +45,10 @@ func TestSetVerified(t *testing.T) {
 	}
 
 	userDB := UserDB{db}
-	mock.ExpectQuery(`SELECT \* FROM users`).WithArgs("eoin", "12345")
+	rows := sqlmock.NewRows([]string{"user_name", "verified", "password", "reg_token"}).AddRow("eoin", true, "pass", "12345")
+	mock.ExpectQuery(`SELECT \* FROM users`).WithArgs("eoin", "12345").WillReturnRows(rows)
+	mock.ExpectPrepare("UPDATE users SET")
+	mock.ExpectExec("UPDATE users SET").WithArgs(true, "eoin", "12345").WillReturnResult(sqlmock.NewResult(1, 1))
 	userDB.SetVerified("eoin", "12345")
 
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -98,5 +101,9 @@ func TestInsert(t *testing.T) {
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("err %s", err)
 	}
+
+}
+
+func TestValidateUserPlusRegToken(t *testing.T) {
 
 }
