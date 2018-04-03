@@ -83,25 +83,43 @@ func (DB *PodcastDB) GetPodcast(userName string, podcastName string) *models.Pod
 //CheckPodcastCreated : check if this podcast exists in DB
 func (DB *PodcastDB) CheckPodcastCreated(podcastID uint, podcastName string) models.Podcast {
 
-	/*var podcast models.Podcast
-	DB.Where("name = ? AND  podcast_id = ?", podcastName, podcastID).First(&podcast)
+	var podcast models.Podcast
+	row := DB.QueryRow("SELECT * FROM podcasts WHERE name = ? AND podcast_id = ?", podcastID, podcastName)
+	err := row.Scan(&podcast.PodcastID, &podcast.UserEmail, &podcast.Icon, &podcast.Name,
+		&podcast.Location, &podcast.EpisodeNum, &podcast.Details)
 
-	return podcast*/
-	return models.Podcast{}
+	if err != nil {
+		log.Println(err)
+	}
+
+	return podcast
 
 }
 
 //UpdatePodcastNumEpisodes : update number of episodes
 func (DB *PodcastDB) UpdatePodcastNumEpisodes(id uint) {
 
-	/*var podcast models.Podcast
-	DB.Where("podcast_id = ?", id).First(&podcast)
-	podcast.EpisodeNum += 1
-	db := DB.Save(&podcast)
+	var podcast models.Podcast
 
-	if db.Error != nil {
-		log.Println(db.Error)
-	}*/
+	row := DB.QueryRow("SELECT * FROM podcasts WHERE podcast_id = ?", id)
+	row.Scan(&podcast.PodcastID, &podcast.UserEmail, &podcast.Icon, &podcast.Name,
+		&podcast.Location, &podcast.EpisodeNum, &podcast.Details)
+
+	podcast.EpisodeNum++
+
+	stmt, err := DB.Prepare("UPDATE podcasts SET episode_num = ? WHERE podcast_id= ?")
+	defer stmt.Close()
+
+	if err != nil {
+		log.Println("problem with stmt")
+		log.Println(err)
+	}
+
+	_, err = stmt.Exec(podcast.EpisodeNum, id)
+
+	if err != nil {
+		log.Println(err)
+	}
 
 }
 
