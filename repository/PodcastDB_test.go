@@ -24,6 +24,7 @@ func TestPodcastCreated(t *testing.T) {
 }
 
 func TestUpdateNumberPodcasts(t *testing.T) {
+	t.Parallel()
 
 	db, mock, err := sqlmock.New()
 	defer db.Close()
@@ -43,6 +44,7 @@ func TestUpdateNumberPodcasts(t *testing.T) {
 }
 
 func TestCreatePodcast(t *testing.T) {
+	t.Parallel()
 
 	db, mock, err := sqlmock.New()
 	defer db.Close()

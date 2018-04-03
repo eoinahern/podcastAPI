@@ -17,6 +17,7 @@ type Config struct {
 	SigningKey string `json:"signingkey"`
 }
 
+//SmtpConfig : configuration for registration email registration confimation
 type SmtpConfig struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -24,6 +25,7 @@ type SmtpConfig struct {
 	Port     string `json:"port"`
 }
 
+// ReadFromFile : read to data from a file location
 func (s *SmtpConfig) ReadFromFile(location string) {
 
 	file, err := os.Open(location)

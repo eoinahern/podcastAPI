@@ -36,6 +36,8 @@ func TestExist(t *testing.T) {
 
 func TestSetVerified(t *testing.T) {
 
+	t.Parallel()
+
 	db, mock, err := sqlmock.New()
 
 	defer db.Close()
@@ -58,6 +60,8 @@ func TestSetVerified(t *testing.T) {
 }
 
 func TestValidatePassAndUser(t *testing.T) {
+
+	t.Parallel()
 
 	db, mock, err := sqlmock.New()
 
@@ -106,6 +110,8 @@ func TestInsert(t *testing.T) {
 
 func TestGetUser(t *testing.T) {
 
+	t.Parallel()
+
 	db, mock, err := sqlmock.New()
 
 	defer db.Close()
@@ -129,6 +135,8 @@ func TestGetUser(t *testing.T) {
 }
 
 func TestValidateUserPlusRegToken(t *testing.T) {
+
+	t.Parallel()
 
 	db, mock, err := sqlmock.New()
 
