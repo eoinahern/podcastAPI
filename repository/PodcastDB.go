@@ -14,7 +14,35 @@ type PodcastDB struct {
 }
 
 //GetAll : get all podcasts. not episodes just a podcast name!!
+//TODO: need to page. potentially filter by category etc here!!
 func (DB *PodcastDB) GetAll() []models.SecurePodcast {
+
+	var podcasts []models.SecurePodcast
+
+	rows, err := DB.Query("SELECT SELECT podcast_id, icon, name, episode_num, details from podcasts")
+
+	defer rows.Close()
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	for rows.Next() {
+
+		var securePodcast models.SecurePodcast
+		if err := rows.Scan(&securePodcast.PodcastID, &securePodcast.Icon,
+			&securePodcast.Name, &securePodcast.EpisodeNum, &securePodcast.Details); err != nil {
+
+			log.Println(err)
+
+		} else {
+
+			podcasts = append(podcasts, securePodcast)
+		}
+
+	}
+
+	return podcasts
 
 	/*	var podcasts []models.SecurePodcast
 		rows, err := DB.Raw("SELECT podcast_id, icon, name, episode_num from podcasts").Rows()
@@ -32,16 +60,24 @@ func (DB *PodcastDB) GetAll() []models.SecurePodcast {
 		}
 
 		return podcasts*/
-	return []models.SecurePodcast{}
 }
 
 //GetPodcast : get a podcast from the DB based on username and podcastName
+//probably more for admin use as have to pass email?
 func (DB *PodcastDB) GetPodcast(userName string, podcastName string) *models.Podcast {
-	/*var podcast models.Podcast
-	DB.Where("user_email = ? AND name = ?", userName, podcastName).First(&podcast)
-	return &podcast*/
 
-	return &models.Podcast{}
+	var podcast models.Podcast
+	row := DB.QueryRow("SELECT * FROM podcasts WHERE user_email = ? AND name = ?", userName, podcastName)
+
+	err := row.Scan(&podcast.PodcastID, &podcast.UserEmail, &podcast.Icon, &podcast.Name,
+		&podcast.Location, &podcast.EpisodeNum, &podcast.Details)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	return &podcast
+
 }
 
 //CheckPodcastCreated : check if this podcast exists in DB
