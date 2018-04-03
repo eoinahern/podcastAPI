@@ -25,6 +25,21 @@ func TestPodcastCreated(t *testing.T) {
 
 func TestUpdateNumberPodcasts(t *testing.T) {
 
+	db, mock, err := sqlmock.New()
+	defer db.Close()
+
+	if err != nil {
+		panic(err)
+	}
+
+	podcastDB := PodcastDB{DB: db}
+	rows := sqlmock.NewRows([]string{"podcast_id", "user_email", "icon", "name", "location", "episode_num", "details"}).AddRow(1, "email", "", "podcast", "location", 0, "a podcast")
+	mock.ExpectQuery("SELECT \\* FROM podcasts").WithArgs(1).WillReturnRows(rows)
+	mock.ExpectPrepare("UPDATE podcasts SET episode_num")
+	mock.ExpectExec("UPDATE podcasts SET episode_num").WithArgs(1, 1).WillReturnResult(sqlmock.NewResult(1, 1))
+
+	podcastDB.UpdatePodcastNumEpisodes(1)
+
 }
 
 func TestCreatePodcast(t *testing.T) {
