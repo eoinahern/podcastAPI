@@ -11,6 +11,22 @@ import (
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 )
 
+func TestGetAll(t *testing.T) {
+
+}
+
+func TestGetPodcast(t *testing.T) {
+
+}
+
+func TestPodcastCreated(t *testing.T) {
+
+}
+
+func TestUpdateNumberPodcasts(t *testing.T) {
+
+}
+
 func TestCreatePodcast(t *testing.T) {
 
 	db, mock, err := sqlmock.New()

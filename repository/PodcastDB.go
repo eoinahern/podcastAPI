@@ -8,10 +8,12 @@ import (
 	"github.com/eoinahern/podcastAPI/models"
 )
 
+//PodcastDB : podcast database helper
 type PodcastDB struct {
 	*sql.DB
 }
 
+//GetAll : get all podcasts. not episodes just a podcast name!!
 func (DB *PodcastDB) GetAll() []models.SecurePodcast {
 
 	/*	var podcasts []models.SecurePodcast
@@ -33,6 +35,7 @@ func (DB *PodcastDB) GetAll() []models.SecurePodcast {
 	return []models.SecurePodcast{}
 }
 
+//GetPodcast : get a podcast from the DB based on username and podcastName
 func (DB *PodcastDB) GetPodcast(userName string, podcastName string) *models.Podcast {
 	/*var podcast models.Podcast
 	DB.Where("user_email = ? AND name = ?", userName, podcastName).First(&podcast)
@@ -41,6 +44,7 @@ func (DB *PodcastDB) GetPodcast(userName string, podcastName string) *models.Pod
 	return &models.Podcast{}
 }
 
+//CheckPodcastCreated : check if this podcast exists in DB
 func (DB *PodcastDB) CheckPodcastCreated(podcastID uint, podcastName string) models.Podcast {
 
 	/*var podcast models.Podcast
@@ -51,6 +55,7 @@ func (DB *PodcastDB) CheckPodcastCreated(podcastID uint, podcastName string) mod
 
 }
 
+//UpdatePodcastNumEpisodes : update number of episodes
 func (DB *PodcastDB) UpdatePodcastNumEpisodes(id uint) {
 
 	/*var podcast models.Podcast
@@ -78,6 +83,7 @@ func (DB *PodcastDB) CreatePodcast(podcast *models.Podcast) error {
 
 	rows, _ := res.RowsAffected()
 	fmt.Println(fmt.Sprintf("num rows affected %s", string(rows)))
+	fmt.Println(err)
 
 	return err
 }
