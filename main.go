@@ -7,6 +7,10 @@ import (
 	"net/http"
 	"os"
 
+	"database/sql"
+
+	_ "github.com/go-sql-driver/mysql"
+
 	"github.com/eoinahern/podcastAPI/validation"
 
 	"github.com/eoinahern/podcastAPI/models"
@@ -17,8 +21,6 @@ import (
 	"github.com/eoinahern/podcastAPI/middleware"
 
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 func main() {
@@ -34,7 +36,11 @@ func main() {
 	decoder.Decode(&config)
 
 	conf := fmt.Sprintf("%s:%s@/%s", config.User, config.Password, config.Schema)
-	db, err := gorm.Open("mysql", conf)
+	db, err := sql.Open("mysql", conf)
+
+	if pingErr := db.Ping(); pingErr != nil {
+		panic("error connecting db " + err.Error())
+	}
 
 	if err != nil {
 		fmt.Println(err)
@@ -46,15 +52,15 @@ func main() {
 	passEncryptUtil := &util.PasswordEncryptUtil{}
 	emailValidator := &validation.EmailValidation{}
 	fileHelperUtil := &util.FileHelperUtil{}
-	userDB := &repository.UserDB{db}
-	episodeDB := &repository.EpisodeDB{db}
-	podcastDB := &repository.PodcastDB{db}
+	userDB := &repository.UserDB{DB: db}
+	episodeDB := &repository.EpisodeDB{DB: db}
+	podcastDB := &repository.PodcastDB{DB: db}
 	jwtTokenUtil := &util.JwtTokenUtil{SigningKey: config.SigningKey, DB: userDB}
 	regMailHelper := &util.MailRequest{SenderId: "mypodcastapi@gmail.com", BodyLocation: "view/templates/regMailTemplate.html"}
 
-	db.AutoMigrate(&models.User{}, &models.Podcast{}, &models.Episode{})
-	db.Model(&models.Podcast{}).AddForeignKey("user_email", "users(user_name)", "CASCADE", "CASCADE")
-	db.Model(&models.Episode{}).AddForeignKey("pod_id", "podcasts(podcast_id)", "CASCADE", "CASCADE")
+	//db.AutoMigrate(&models.User{}, &models.Podcast{}, &models.Episode{})
+	//db.Model(&models.Podcast{}).AddForeignKey("user_email", "users(user_name)", "CASCADE", "CASCADE")
+	//db.Model(&models.Episode{}).AddForeignKey("pod_id", "podcasts(podcast_id)", "CASCADE", "CASCADE")
 
 	defer db.Close()
 

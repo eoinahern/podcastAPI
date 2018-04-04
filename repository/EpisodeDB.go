@@ -1,39 +1,97 @@
 package repository
 
 import (
+	"database/sql"
 	"log"
 
 	"github.com/eoinahern/podcastAPI/models"
-
-	"github.com/jinzhu/gorm"
 )
 
+//EpisodeDB : collect, maintain epoisode data in DB
 type EpisodeDB struct {
-	*gorm.DB
+	*sql.DB
 }
 
+//GetAllEpisodes : get all episodes associated with specific podcast
 func (DB *EpisodeDB) GetAllEpisodes(podcastid int) []models.Episode {
 
 	var episodes []models.Episode
-	DB.Where("pod_id = ?", podcastid).Find(&episodes)
-	return episodes
-}
+	rows, err := DB.Query("SELECT * FROM episodes WHERE pod_id = ?", podcastid)
 
-func (DB *EpisodeDB) AddEpisode(episode models.Episode) error {
+	defer rows.Close()
 
-	db := DB.Save(&episode)
-
-	if db.Error != nil {
-		log.Println(db.Error)
+	if err != nil {
+		log.Println(err)
 	}
 
-	return db.Error
+	for rows.Next() {
+		var episode models.Episode
+		err = rows.Scan(&episode.EpisodeID, &episode.PodID, &episode.Created, &episode.Updated, &episode.URL, &episode.Downloads, &episode.Blurb)
+
+		if err != nil {
+			log.Println(err)
+		} else {
+			episodes = append(episodes, episode)
+		}
+	}
+
+	return episodes
+
+	/*var episodes []models.Episode
+	DB.Where("pod_id = ?", podcastid).Find(&episodes)
+	return episodes*/
 
 }
 
-func (DB *EpisodeDB) GetLastEpisode() models.Episode {
+//AddEpisode : Add episode data to database
+func (DB *EpisodeDB) AddEpisode(episode models.Episode) error {
+
+	stmt, err := DB.Prepare("INSERT INTO episodes(episode_id, pod_id, created, updated, url, downloads, blurb) VALUES(?,?,?,?,?,?,?)")
+	defer stmt.Close()
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	_, err = stmt.Exec(episode.EpisodeID, episode.PodID, episode.Created, episode.Updated, episode.URL, episode.Downloads, episode.Blurb)
+	return err
+
+}
+
+//GetSingleEpisode : get data about episode base on id, and podname. maybe id aswell.
+func (DB *EpisodeDB) GetSingleEpisode(podcastid uint, episodeID uint) models.Episode {
 
 	var episode models.Episode
-	DB.Last(&episode)
+	row := DB.QueryRow("SELECT * FROM episodes WHERE episode_id = ? AND pod_id = ?", episodeID, podcastid)
+	err := row.Scan(&episode.EpisodeID, &episode.PodID, &episode.Created, &episode.Updated, &episode.URL, &episode.Downloads, &episode.Blurb)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	return episode
+}
+
+//GetLastEpisode : get last episode from db? not sure if this is required?
+func (DB *EpisodeDB) GetLastEpisode() models.Episode {
+
+	//SELECT * FROM TABLE ORDER BY episode_id DESC LIMIT 1
+	var episode models.Episode
+	row, err := DB.Query("SELECT TOP 1 * FROM episodes ORDER BY episode_id DESC LIMIT 1") //DESC wasnt working on QueryRow() ????
+	defer row.Close()
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	for row.Next() {
+		err = row.Scan(&episode.EpisodeID, &episode.PodID, &episode.Created, &episode.Updated, &episode.URL, &episode.Downloads, &episode.Blurb)
+
+		if err != nil {
+			log.Println(err)
+		}
+
+	}
+
 	return episode
 }
