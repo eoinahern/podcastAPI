@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"database/sql"
 	"testing"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -10,6 +11,20 @@ import (
 
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 )
+
+func setUpMockDB() (PodcastDB, *sql.DB, sqlmock.Sqlmock) {
+
+	db, mock, err := sqlmock.New()
+
+	if err != nil {
+		panic(err)
+	}
+
+	podcastDB := PodcastDB{DB: db}
+
+	return podcastDB, db, mock
+
+}
 
 func TestGetAll(t *testing.T) {
 
@@ -26,14 +41,9 @@ func TestPodcastCreated(t *testing.T) {
 func TestUpdateNumberPodcasts(t *testing.T) {
 	t.Parallel()
 
-	db, mock, err := sqlmock.New()
+	podcastDB, db, mock := setUpMockDB()
 	defer db.Close()
 
-	if err != nil {
-		panic(err)
-	}
-
-	podcastDB := PodcastDB{DB: db}
 	rows := sqlmock.NewRows([]string{"podcast_id", "user_email", "icon", "name", "location", "episode_num", "details"}).AddRow(1, "email", "", "podcast", "location", 0, "a podcast")
 	mock.ExpectQuery("SELECT \\* FROM podcasts").WithArgs(1).WillReturnRows(rows)
 	mock.ExpectPrepare("UPDATE podcasts SET episode_num")
@@ -46,14 +56,8 @@ func TestUpdateNumberPodcasts(t *testing.T) {
 func TestCreatePodcast(t *testing.T) {
 	t.Parallel()
 
-	db, mock, err := sqlmock.New()
+	podcastDB, db, mock := setUpMockDB()
 	defer db.Close()
-
-	if err != nil {
-		panic(err)
-	}
-
-	podcastDB := PodcastDB{DB: db}
 
 	podcast := &models.Podcast{UserEmail: "eoin", Icon: "none", Name: "name", Location: "location/location", Details: "podcast about something"}
 	mock.ExpectPrepare("INSERT INTO podcasts")

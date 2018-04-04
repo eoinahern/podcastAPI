@@ -14,7 +14,7 @@ type PodcastDB struct {
 }
 
 //GetAll : get all podcasts. not episodes just a podcast name!!
-//TODO: need to page. potentially filter by category etc here!!
+//TODO: need to page. potentially filter by category etc here!! popularity etc
 func (DB *PodcastDB) GetAll() []models.SecurePodcast {
 
 	var podcasts []models.SecurePodcast
