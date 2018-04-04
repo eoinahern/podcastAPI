@@ -12,6 +12,10 @@ import (
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 )
 
+var columns = []string{"podcast_id", "icon", "name", "episode_num", "details"}
+var columnsLocation = []string{"podcast_id", "user_email", "icon", "name", "location", "episode_num", "details"}
+
+//setUpMockDB : helper method
 func setUpMockDB() (PodcastDB, *sql.DB, sqlmock.Sqlmock) {
 
 	db, mock, err := sqlmock.New()
@@ -32,7 +36,7 @@ func TestGetAll(t *testing.T) {
 	podcastDB, db, mock := setUpMockDB()
 	defer db.Close()
 
-	rows := sqlmock.NewRows([]string{"podcast_id", "icon", "name", "episode_num", "details"}).AddRow(1, "icon", "podcast1", 1, "details about").AddRow(2, "icon.jpeg", "yayrus", 5, "mo details")
+	rows := sqlmock.NewRows(columns).AddRow(1, "icon", "podcast1", 1, "details about").AddRow(2, "icon.jpeg", "yayrus", 5, "mo details")
 	mock.ExpectQuery("SELECT podcast_id, icon, name").WillReturnRows(rows)
 
 	podcasts := podcastDB.GetAll()
@@ -46,10 +50,31 @@ func TestGetAll(t *testing.T) {
 func TestGetPodcast(t *testing.T) {
 	t.Parallel()
 
+	podcastDB, db, mock := setUpMockDB()
+	defer db.Close()
+
+	username := "me@yahoo.co.uk"
+	podcastName := "podcast"
+
+	rows := sqlmock.NewRows(columnsLocation).AddRow(1, username, "icon.jpeg", podcastName, "location", 67, "podcast blurb")
+	mock.ExpectQuery("SELECT \\* FROM podcasts WHERE").WithArgs(username, podcastName).WillReturnRows(rows)
+
+	podcast := podcastDB.GetPodcast(username, podcastName)
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("err %s", err)
+	}
+
+	assert.Equal(t, username, podcast.UserEmail)
+	assert.Equal(t, podcastName, podcast.Name)
+
 }
 
 func TestPodcastCreated(t *testing.T) {
 	t.Parallel()
+
+	//podcastDB, db, mock := setUpMockDB()
+	//defer db.Close()
 
 }
 
@@ -59,12 +84,16 @@ func TestUpdateNumberPodcasts(t *testing.T) {
 	podcastDB, db, mock := setUpMockDB()
 	defer db.Close()
 
-	rows := sqlmock.NewRows([]string{"podcast_id", "user_email", "icon", "name", "location", "episode_num", "details"}).AddRow(1, "email", "", "podcast", "location", 0, "a podcast")
+	rows := sqlmock.NewRows(columnsLocation).AddRow(1, "email", "", "podcast", "location", 0, "a podcast")
 	mock.ExpectQuery("SELECT \\* FROM podcasts").WithArgs(1).WillReturnRows(rows)
 	mock.ExpectPrepare("UPDATE podcasts SET episode_num")
 	mock.ExpectExec("UPDATE podcasts SET episode_num").WithArgs(1, 1).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	podcastDB.UpdatePodcastNumEpisodes(1)
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("err %s", err)
+	}
 
 }
 
