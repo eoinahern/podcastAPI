@@ -27,14 +27,29 @@ func setUpMockDB() (PodcastDB, *sql.DB, sqlmock.Sqlmock) {
 }
 
 func TestGetAll(t *testing.T) {
+	t.Parallel()
+
+	podcastDB, db, mock := setUpMockDB()
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{"podcast_id", "icon", "name", "episode_num", "details"}).AddRow(1, "icon", "podcast1", 1, "details about").AddRow(2, "icon.jpeg", "yayrus", 5, "mo details")
+	mock.ExpectQuery("SELECT podcast_id, icon, name").WillReturnRows(rows)
+
+	podcasts := podcastDB.GetAll()
+
+	assert.Equal(t, 2, len(podcasts))
+	assert.Equal(t, "podcast1", podcasts[0].Name)
+	assert.Equal(t, "icon.jpeg", podcasts[1].Icon)
 
 }
 
 func TestGetPodcast(t *testing.T) {
+	t.Parallel()
 
 }
 
 func TestPodcastCreated(t *testing.T) {
+	t.Parallel()
 
 }
 

@@ -19,7 +19,7 @@ func (DB *PodcastDB) GetAll() []models.SecurePodcast {
 
 	var podcasts []models.SecurePodcast
 
-	rows, err := DB.Query("SELECT SELECT podcast_id, icon, name, episode_num, details from podcasts")
+	rows, err := DB.Query("SELECT podcast_id, icon, name, episode_num, details from podcasts")
 
 	defer rows.Close()
 
@@ -43,23 +43,6 @@ func (DB *PodcastDB) GetAll() []models.SecurePodcast {
 	}
 
 	return podcasts
-
-	/*	var podcasts []models.SecurePodcast
-		rows, err := DB.Raw("SELECT podcast_id, icon, name, episode_num from podcasts").Rows()
-
-		if err != nil {
-			log.Println(err)
-		}
-
-		defer rows.Close()
-
-		for rows.Next() {
-			var pod models.SecurePodcast
-			rows.Scan(&pod.PodcastID, &pod.Icon, &pod.Name, &pod.EpisodeNum)
-			podcasts = append(podcasts, pod)
-		}
-
-		return podcasts*/
 }
 
 //GetPodcast : get a podcast from the DB based on username and podcastName
