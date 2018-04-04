@@ -77,11 +77,20 @@ func (DB *EpisodeDB) GetLastEpisode() models.Episode {
 
 	//SELECT * FROM TABLE ORDER BY episode_id DESC LIMIT 1
 	var episode models.Episode
-	row := DB.QueryRow("SELECT * FROM episodes ORDER BY episode_id DESC LIMIT 1")
-	err := row.Scan(&episode.EpisodeID, &episode.PodID, &episode.Created, &episode.Updated, &episode.URL, &episode.Downloads, &episode.Blurb)
+	row, err := DB.Query("SELECT TOP 1 * FROM episodes ORDER BY episode_id DESC LIMIT 1") //DESC wasnt working on QueryRow() ????
+	defer row.Close()
 
 	if err != nil {
 		log.Println(err)
+	}
+
+	for row.Next() {
+		err = row.Scan(&episode.EpisodeID, &episode.PodID, &episode.Created, &episode.Updated, &episode.URL, &episode.Downloads, &episode.Blurb)
+
+		if err != nil {
+			log.Println(err)
+		}
+
 	}
 
 	return episode

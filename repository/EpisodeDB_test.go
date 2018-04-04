@@ -77,7 +77,7 @@ func TestGetSingleEpisode(t *testing.T) {
 	defer db.Close()
 
 	rows := sqlmock.NewRows(episodeColumns).AddRow(episode1.EpisodeID, episode1.PodID, episode1.Created, episode1.Updated, episode1.URL, episode1.Downloads, episode1.Blurb)
-	mock.ExpectQuery("SELECT \\* FROM episodes").WithArgs(episode1.EpisodeID, episode1.PodID).WillReturnRows(rows)
+	mock.ExpectQuery("SELECT").WithArgs(episode1.EpisodeID, episode1.PodID).WillReturnRows(rows)
 
 	episode := episodeDB.GetSingleEpisode(episode1.EpisodeID, episode1.PodID)
 
@@ -94,7 +94,18 @@ func TestGetLastEpisode(t *testing.T) {
 
 	t.Parallel()
 
-	//episodeDB, db, mock := setUpEpisodeMocks()
-	//defer db.Close()
+	episodeDB, db, mock := setUpEpisodeMocks()
+	defer db.Close()
+
+	rows := sqlmock.NewRows(episodeColumns).AddRow(episode1.EpisodeID, episode1.PodID, episode1.Created, episode1.Updated, episode1.URL, episode1.Downloads, episode1.Blurb).AddRow(episode2.EpisodeID, episode2.PodID, episode2.Created, episode2.Updated, episode2.URL, episode2.Downloads, episode2.Blurb)
+	mock.ExpectQuery("SELECT").WillReturnRows(rows)
+
+	episode := episodeDB.GetLastEpisode()
+
+	if errExpt := mock.ExpectationsWereMet(); errExpt != nil {
+		t.Errorf("err %s", errExpt)
+	}
+
+	assert.Equal(t, episode2.EpisodeID, episode.EpisodeID)
 
 }
