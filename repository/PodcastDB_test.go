@@ -73,8 +73,23 @@ func TestGetPodcast(t *testing.T) {
 func TestPodcastCreated(t *testing.T) {
 	t.Parallel()
 
-	//podcastDB, db, mock := setUpMockDB()
-	//defer db.Close()
+	podcastDB, db, mock := setUpMockDB()
+	defer db.Close()
+
+	var podID uint = 1
+	podcastName := "JRE"
+
+	row := sqlmock.NewRows(columnsLocation).AddRow(podID, "username", "icon", podcastName, "location", 5, "blurb")
+	mock.ExpectQuery("SELECT \\* FROM podcasts").WithArgs(podID, podcastName).WillReturnRows(row)
+
+	podcast := podcastDB.CheckPodcastCreated(podID, podcastName)
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("err %s", err)
+	}
+
+	assert.Equal(t, podID, podcast.PodcastID)
+	assert.Equal(t, podcastName, podcast.Name)
 
 }
 
