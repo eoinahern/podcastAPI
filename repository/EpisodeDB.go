@@ -13,7 +13,7 @@ type EpisodeDB struct {
 }
 
 //GetAllEpisodes : get all episodes associated with specific podcast
-func (DB *EpisodeDB) GetAllEpisodes(podcastid uint) []models.Episode {
+func (DB *EpisodeDB) GetAllEpisodes(podcastid int) []models.Episode {
 
 	var episodes []models.Episode
 	rows, err := DB.Query("SELECT * FROM episodes WHERE pod_id = ?", podcastid)

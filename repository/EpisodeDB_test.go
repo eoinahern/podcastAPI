@@ -38,7 +38,7 @@ func TestGetAllEPisodes(t *testing.T) {
 	rows = rows.AddRow(episode2.EpisodeID, episode2.PodID, episode2.Created, episode2.Updated, episode2.URL, episode2.Downloads, episode2.Blurb)
 	mock.ExpectQuery("SELECT \\* FROM episodes").WithArgs(episode1.PodID).WillReturnRows(rows)
 
-	episodes := episodeDB.GetAllEpisodes(episode1.PodID)
+	episodes := episodeDB.GetAllEpisodes(int(episode1.PodID))
 
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("err %s", err)
