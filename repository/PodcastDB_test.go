@@ -41,6 +41,10 @@ func TestGetAll(t *testing.T) {
 
 	podcasts := podcastDB.GetAll()
 
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("err %s", err)
+	}
+
 	assert.Equal(t, 2, len(podcasts))
 	assert.Equal(t, "podcast1", podcasts[0].Name)
 	assert.Equal(t, "icon.jpeg", podcasts[1].Icon)
