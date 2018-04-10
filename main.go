@@ -36,7 +36,7 @@ func main() {
 	}
 
 	decoder := json.NewDecoder(file)
-	config := map[string]models.Config{}
+	var config map[string]models.Config
 	decoder.Decode(&config)
 
 	prodConf := config["production"]
