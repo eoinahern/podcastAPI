@@ -89,7 +89,7 @@ func (DB *UserDB) ValidatePasswordAndUser(email string, password string) bool {
 func (DB *UserDB) Insert(user *models.User) {
 	//DB.Save(user)
 
-	stmt, err := DB.Prepare("INSERT into users(username, verified, password, reg_token) VALUES(?,?,?,?)")
+	stmt, err := DB.Prepare("INSERT into users(user_name, verified, password, reg_token) VALUES(?,?,?,?)")
 
 	if err != nil {
 		log.Fatal(err)
