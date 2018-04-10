@@ -76,8 +76,8 @@ type DeleteEpisodeHandler struct {
 }
 
 //vars
-var tokenErr []byte = []byte(`{ "error" : "problem with token"}`)
-var internalErr []byte = []byte(`{ "error" : "internal error"}`)
+var tokenErr = []byte(`{ "error" : "problem with token"}`)
+var internalErr = []byte(`{ "error" : "internal error"}`)
 
 const notAllowedErrStr string = "method not allowed"
 const podcastFiles string = "./files"
