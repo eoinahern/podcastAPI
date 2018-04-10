@@ -102,3 +102,10 @@ type Episode struct {
 	Downloads int32  `json:"downloads" gorm:"type:INTEGER; not null default:0"`
 	Blurb     string `json:"blurb" gorm:"type: TEXT"`
 }
+
+//SeedData : read from file used to see debug db
+type SeedData struct {
+	User     User      `json:"user"`
+	Podcasts []Podcast `json:"podcasts"`
+	Episodes []Episode `json:"episodes"`
+}
