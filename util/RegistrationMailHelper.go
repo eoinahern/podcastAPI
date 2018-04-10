@@ -26,7 +26,7 @@ type MailRequest struct {
 func (m *MailRequest) SendMail() (bool, error) {
 
 	smtpConf := &models.SmtpConfig{}
-	smtpConf.ReadFromFile("smtpConfig.json")
+	smtpConf.ReadFromFile("config/smtpConfig.json")
 	auth := smtp.PlainAuth("", smtpConf.Username, smtpConf.Password, smtpConf.Server)
 	err := smtp.SendMail(smtpConf.Server+":"+smtpConf.Port, auth, m.SenderId, []string{m.ToId}, []byte(m.buildMail()))
 
