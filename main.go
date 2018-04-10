@@ -22,6 +22,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var emailValidator *validation.EmailValidation
+var passEncryptUtil *util.PasswordEncryptUtil
+var fileHelperUtil *util.FileHelperUtil
+var regMailHelper *util.MailRequest
+
 func main() {
 
 	file, err := os.Open("config.json")
@@ -53,19 +58,10 @@ func main() {
 	}
 
 	//create dependencies
-
-	/*passEncryptUtil := &util.PasswordEncryptUtil{}
-	emailValidator := &validation.EmailValidation{}
-	fileHelperUtil := &util.FileHelperUtil{}
-	userDB := &repository.UserDB{DB: prodDB}
-	episodeDB := &repository.EpisodeDB{DB: prodDB}
-	podcastDB := &repository.PodcastDB{DB: prodDB}
-	jwtTokenUtil := &util.JwtTokenUtil{SigningKey: prodConf.SigningKey, DB: userDB}
-	regMailHelper := &util.MailRequest{SenderId: "mypodcastapi@gmail.com", BodyLocation: "view/templates/regMailTemplate.html"}*/
-
-	//db.AutoMigrate(&models.User{}, &models.Podcast{}, &models.Episode{})
-	//db.Model(&models.Podcast{}).AddForeignKey("user_email", "users(user_name)", "CASCADE", "CASCADE")
-	//db.Model(&models.Episode{}).AddForeignKey("pod_id", "podcasts(podcast_id)", "CASCADE", "CASCADE")
+	passEncryptUtil = &util.PasswordEncryptUtil{}
+	emailValidator = &validation.EmailValidation{}
+	fileHelperUtil = &util.FileHelperUtil{}
+	regMailHelper = &util.MailRequest{SenderId: "mypodcastapi@gmail.com", BodyLocation: "view/templates/regMailTemplate.html"}
 
 	defer prodDB.Close()
 	defer prodDB.Close()
@@ -75,30 +71,16 @@ func main() {
 	setUpProduction(router, prodDB, prodConf.SigningKey)
 	setUpDebug(router, debugDB)
 
-	/*router.Handle("/register", &routes.RegisterHandler{EmailValidator: emailValidator, MailHelper: regMailHelper, DB: userDB, PassEncryptUtil: passEncryptUtil}).Methods(http.MethodPost)
-	router.Handle("/confirm", &routes.ConfirmRegistrationHandler{DB: userDB}).Methods(http.MethodPost)
-	router.Handle("/session", &routes.CreateSessionHandler{DB: userDB, JwtTokenUtil: jwtTokenUtil, PassEncryptUtil: passEncryptUtil}).Methods(http.MethodPost)
-	router.Handle("/podcasts", middleware.Adapt(&routes.GetPodcastsHandler{UserDB: userDB, PodcastDB: podcastDB}, middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodGet)
-	router.Handle("/episodes", middleware.Adapt(&routes.GetEpisodesHandler{UserDB: userDB, EpisodeDB: episodeDB}, middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodGet)
-	router.Handle("/episodes/{podcastid}/{podcastname}/{podcastfilename}", middleware.Adapt(&routes.DownloadEpisodeHandler{EpisodeDB: episodeDB}, middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodGet)
-	router.Handle("/podcasts", middleware.Adapt(&routes.CreatePodcastHandler{PodcastDB: podcastDB, FileHelper: fileHelperUtil}, middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodPost)
-	router.Handle("/episodes", middleware.Adapt(&routes.UploadEpisodeHandler{UserDB: userDB, PodcastDB: podcastDB, EpisodeDB: episodeDB}, middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodPost)
-	*/
-
 	http.ListenAndServe(":8080", router)
 	//http.ListenAndServeTLS(":8080", "cert.pem", "key.pem", nil)
 }
 
 func setUpProduction(router *mux.Router, prodDB *sql.DB, signingKey string) {
 
-	passEncryptUtil := &util.PasswordEncryptUtil{}
-	emailValidator := &validation.EmailValidation{}
-	fileHelperUtil := &util.FileHelperUtil{}
 	userDB := &repository.UserDB{DB: prodDB}
 	episodeDB := &repository.EpisodeDB{DB: prodDB}
 	podcastDB := &repository.PodcastDB{DB: prodDB}
 	jwtTokenUtil := &util.JwtTokenUtil{SigningKey: signingKey, DB: userDB}
-	regMailHelper := &util.MailRequest{SenderId: "mypodcastapi@gmail.com", BodyLocation: "view/templates/regMailTemplate.html"}
 
 	router.Handle("/register", &routes.RegisterHandler{EmailValidator: emailValidator, MailHelper: regMailHelper, DB: userDB, PassEncryptUtil: passEncryptUtil}).Methods(http.MethodPost)
 	router.Handle("/confirm", &routes.ConfirmRegistrationHandler{DB: userDB}).Methods(http.MethodPost)
@@ -112,6 +94,20 @@ func setUpProduction(router *mux.Router, prodDB *sql.DB, signingKey string) {
 }
 
 func setUpDebug(router *mux.Router, debugDB *sql.DB) {
+
+	debugUserDB := &repository.UserDB{DB: debugDB}
+	debugEpisodeDB := &repository.EpisodeDB{DB: debugDB}
+	debugPodcastDB := &repository.PodcastDB{DB: debugDB}
+	jwtTokenUtil := &util.JwtTokenUtil{SigningKey: "1234", DB: debugUserDB}
+
+	router.Handle("/debug/register", &routes.RegisterHandler{EmailValidator: emailValidator, MailHelper: regMailHelper, DB: debugUserDB, PassEncryptUtil: passEncryptUtil}).Methods(http.MethodPost)
+	router.Handle("/debug/confirm", &routes.ConfirmRegistrationHandler{DB: debugUserDB}).Methods(http.MethodPost)
+	router.Handle("/debug/session", &routes.CreateSessionHandler{DB: debugUserDB, JwtTokenUtil: jwtTokenUtil, PassEncryptUtil: passEncryptUtil}).Methods(http.MethodPost)
+	router.Handle("/debug/podcasts", middleware.Adapt(&routes.GetPodcastsHandler{UserDB: debugUserDB, PodcastDB: debugPodcastDB}, middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodGet)
+	router.Handle("/debug/episodes", middleware.Adapt(&routes.GetEpisodesHandler{UserDB: debugUserDB, EpisodeDB: debugEpisodeDB}, middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodGet)
+	router.Handle("/debug/episodes/{podcastid}/{podcastname}/{podcastfilename}", middleware.Adapt(&routes.DownloadEpisodeHandler{EpisodeDB: debugEpisodeDB}, middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodGet)
+	router.Handle("/debug/podcasts", middleware.Adapt(&routes.CreatePodcastHandler{PodcastDB: debugPodcastDB, FileHelper: fileHelperUtil}, middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodPost)
+	router.Handle("/debug/episodes", middleware.Adapt(&routes.UploadEpisodeHandler{UserDB: debugUserDB, PodcastDB: debugPodcastDB, EpisodeDB: debugEpisodeDB}, middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodPost)
 
 }
 
