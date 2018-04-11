@@ -58,7 +58,7 @@ func TestAddEpisode(t *testing.T) {
 	defer db.Close()
 
 	mock.ExpectPrepare("INSERT INTO episodes")
-	mock.ExpectExec("INSERT INTO episodes").WithArgs(episode1.EpisodeID, episode1.PodID, episode1.Created, episode1.Updated, episode1.URL, episode1.Downloads, episode1.Blurb).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("INSERT INTO episodes").WithArgs(episode1.PodID, episode1.Created, episode1.Updated, episode1.URL, episode1.Downloads, episode1.Blurb).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	err := episodeDB.AddEpisode(*episode1)
 
