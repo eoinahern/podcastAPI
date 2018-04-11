@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
 	"github.com/eoinahern/podcastAPI/models"
@@ -129,11 +128,7 @@ func (DB *PodcastDB) CreatePodcast(podcast *models.Podcast) error {
 	}
 
 	defer stmt.Close()
-	res, err := stmt.Exec(podcast.UserEmail, podcast.Icon, podcast.Name, podcast.Location, podcast.Details)
-
-	rows, _ := res.RowsAffected()
-	fmt.Println(fmt.Sprintf("num rows affected %s", string(rows)))
-	fmt.Println(err)
+	_, err = stmt.Exec(podcast.UserEmail, podcast.Icon, podcast.Name, podcast.Location, podcast.Details)
 
 	return err
 }

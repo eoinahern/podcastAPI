@@ -345,6 +345,7 @@ func (e *UploadEpisodeHandler) ServeHTTP(w http.ResponseWriter, req *http.Reques
 	lastepisode := e.EpisodeDB.GetLastEpisode()
 	filelocation := fmt.Sprintf("%s/%d.%s", podcast.Location, lastepisode.EpisodeID+1, "mp3")
 	episode.URL = filelocation
+
 	e.EpisodeDB.AddEpisode(episode)
 	ioutil.WriteFile(filelocation, fileBytes, os.ModePerm)
 	e.PodcastDB.UpdatePodcastNumEpisodes(podcast.PodcastID)

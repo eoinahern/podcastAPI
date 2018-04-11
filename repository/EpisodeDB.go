@@ -60,14 +60,14 @@ func (DB *EpisodeDB) GetAllEpisodes(podcastid int) []models.Episode {
 //AddEpisode : Add episode data to database
 func (DB *EpisodeDB) AddEpisode(episode models.Episode) error {
 
-	stmt, err := DB.Prepare("INSERT INTO episodes(episode_id, pod_id, created, updated, url, downloads, blurb) VALUES(?,?,?,?,?,?,?)")
+	stmt, err := DB.Prepare("INSERT INTO episodes(pod_id, created, updated, url, downloads, blurb) VALUES(?,?,?,?,?,?)")
 	defer stmt.Close()
 
 	if err != nil {
 		log.Println(err)
 	}
 
-	_, err = stmt.Exec(episode.EpisodeID, episode.PodID, episode.Created, episode.Updated, episode.URL, episode.Downloads, episode.Blurb)
+	_, err = stmt.Exec(episode.PodID, episode.Created, episode.Updated, episode.URL, episode.Downloads, episode.Blurb)
 	return err
 
 }
