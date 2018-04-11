@@ -17,9 +17,10 @@ type PodcastDB struct {
 func (DB *PodcastDB) CountRows() int {
 
 	var count int
-	err := DB.QueryRow("SELECT COUNT(*) FROM podcasts").Scan(&count)
+	row := DB.QueryRow("SELECT COUNT(*) FROM podcasts")
+	err := row.Scan(&count)
 
-	if err != nil {
+	if err == nil {
 		return count
 	}
 
@@ -33,7 +34,6 @@ func (DB *PodcastDB) GetAll() []models.SecurePodcast {
 	var podcasts []models.SecurePodcast
 
 	rows, err := DB.Query("SELECT podcast_id, icon, name, episode_num, details from podcasts")
-
 	defer rows.Close()
 
 	if err != nil {

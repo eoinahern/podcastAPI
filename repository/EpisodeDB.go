@@ -16,9 +16,10 @@ type EpisodeDB struct {
 func (DB *EpisodeDB) CountRows() int {
 
 	var count int
-	err := DB.QueryRow("SELECT COUNT(*) FROM episodes").Scan(&count)
+	row := DB.QueryRow("SELECT COUNT(*) FROM episodes")
+	err := row.Scan(&count)
 
-	if err != nil {
+	if err == nil {
 		return count
 	}
 

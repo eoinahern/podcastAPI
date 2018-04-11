@@ -16,9 +16,10 @@ type UserDB struct {
 func (DB *UserDB) CountRows() int {
 
 	var count int
-	err := DB.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
+	row := DB.QueryRow("SELECT COUNT(*) FROM users")
+	err := row.Scan(&count)
 
-	if err != nil {
+	if err == nil {
 		return count
 	}
 

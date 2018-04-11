@@ -72,14 +72,13 @@ func main() {
 	regMailHelper = &util.MailRequest{SenderId: "mypodcastapi@gmail.com", BodyLocation: "view/templates/regMailTemplate.html"}
 
 	defer prodDB.Close()
-	defer prodDB.Close()
+	defer debugDB.Close()
 
 	router := mux.NewRouter()
 
-	setUpProduction(router, prodDB, prodConf.SigningKey)
 	setUpDebug(router, debugDB)
 	wg.Wait()
-
+	setUpProduction(router, prodDB, prodConf.SigningKey)
 	http.ListenAndServe(":8080", router)
 	//http.ListenAndServeTLS(":8080", "cert.pem", "key.pem", nil)
 }
@@ -127,27 +126,31 @@ func seed() {
 	defer wg.Done()
 
 	var seedData models.SeedData
-	file, err := os.Open(seedFileLocation)
-	json.NewDecoder(file).Decode(&seedData)
+	userRows := debugUserDB.CountRows()
+	podcastRows := debugPodcastDB.CountRows()
+	episodeRows := debugEpisodeDB.CountRows()
 
-	if err != nil {
-		log.Println(err)
+	if userRows == 0 || podcastRows == 0 || episodeRows == 0 {
+		file, _ := os.Open(seedFileLocation)
+		json.NewDecoder(file).Decode(&seedData)
+		defer file.Close()
 	}
 
-	debugUserDB.Insert(&seedData.User)
+	if userRows == 0 {
+		debugUserDB.Insert(&seedData.User)
+	}
 
-	if debugPodcastDB.CountRows() == 0 {
+	if podcastRows == 0 {
 		for _, podcast := range seedData.Podcasts {
 			debugPodcastDB.CreatePodcast(podcast)
 		}
 	}
 
-	if debugEpisodeDB.CountRows() == 0 {
+	if episodeRows == 0 {
 		for _, episode := range seedData.Episodes {
 			debugEpisodeDB.AddEpisode(*episode)
 		}
 	}
 
 	fmt.Println("seed Debug db complete!")
-
 }
