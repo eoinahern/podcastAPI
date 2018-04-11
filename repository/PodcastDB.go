@@ -13,6 +13,19 @@ type PodcastDB struct {
 	*sql.DB
 }
 
+//CountRows : num rows
+func (DB *PodcastDB) CountRows() int {
+
+	var count int
+	err := DB.QueryRow("SELECT COUNT(*) FROM podcasts").Scan(&count)
+
+	if err != nil {
+		return count
+	}
+
+	return 0
+}
+
 //GetAll : get all podcasts. not episodes just a podcast name!!
 //TODO: need to page. potentially filter by category etc here!! popularity etc
 func (DB *PodcastDB) GetAll() []models.SecurePodcast {

@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sync"
 
 	"database/sql"
 
@@ -26,9 +27,16 @@ var emailValidator *validation.EmailValidation
 var passEncryptUtil *util.PasswordEncryptUtil
 var fileHelperUtil *util.FileHelperUtil
 var regMailHelper *util.MailRequest
+var debugUserDB *repository.UserDB
+var debugPodcastDB *repository.PodcastDB
+var debugEpisodeDB *repository.EpisodeDB
+var wg sync.WaitGroup
+
+const seedFileLocation string = "config/seedData.json"
 
 func main() {
 
+	wg.Add(1)
 	file, err := os.Open("config/config.json")
 
 	if err != nil {
@@ -70,6 +78,7 @@ func main() {
 
 	setUpProduction(router, prodDB, prodConf.SigningKey)
 	setUpDebug(router, debugDB)
+	wg.Wait()
 
 	http.ListenAndServe(":8080", router)
 	//http.ListenAndServeTLS(":8080", "cert.pem", "key.pem", nil)
@@ -95,9 +104,9 @@ func setUpProduction(router *mux.Router, prodDB *sql.DB, signingKey string) {
 
 func setUpDebug(router *mux.Router, debugDB *sql.DB) {
 
-	debugUserDB := &repository.UserDB{DB: debugDB}
-	debugEpisodeDB := &repository.EpisodeDB{DB: debugDB}
-	debugPodcastDB := &repository.PodcastDB{DB: debugDB}
+	debugUserDB = &repository.UserDB{DB: debugDB}
+	debugEpisodeDB = &repository.EpisodeDB{DB: debugDB}
+	debugPodcastDB = &repository.PodcastDB{DB: debugDB}
 	jwtTokenUtil := &util.JwtTokenUtil{SigningKey: "1234", DB: debugUserDB}
 
 	router.Handle("/debug/register", &routes.RegisterHandler{EmailValidator: emailValidator, MailHelper: regMailHelper, DB: debugUserDB, PassEncryptUtil: passEncryptUtil}).Methods(http.MethodPost)
@@ -109,8 +118,36 @@ func setUpDebug(router *mux.Router, debugDB *sql.DB) {
 	router.Handle("/debug/podcasts", middleware.Adapt(&routes.CreatePodcastHandler{PodcastDB: debugPodcastDB, FileHelper: fileHelperUtil}, middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodPost)
 	router.Handle("/debug/episodes", middleware.Adapt(&routes.UploadEpisodeHandler{UserDB: debugUserDB, PodcastDB: debugPodcastDB, EpisodeDB: debugEpisodeDB}, middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodPost)
 
+	go seed()
 }
 
 func seed() {
+
+	fmt.Println("seeding Database!")
+	defer wg.Done()
+
+	var seedData models.SeedData
+	file, err := os.Open(seedFileLocation)
+	json.NewDecoder(file).Decode(&seedData)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	debugUserDB.Insert(&seedData.User)
+
+	if debugPodcastDB.CountRows() == 0 {
+		for _, podcast := range seedData.Podcasts {
+			debugPodcastDB.CreatePodcast(podcast)
+		}
+	}
+
+	if debugEpisodeDB.CountRows() == 0 {
+		for _, episode := range seedData.Episodes {
+			debugEpisodeDB.AddEpisode(*episode)
+		}
+	}
+
+	fmt.Println("seed Debug db complete!")
 
 }

@@ -12,6 +12,19 @@ type EpisodeDB struct {
 	*sql.DB
 }
 
+//CountRows : num rows
+func (DB *EpisodeDB) CountRows() int {
+
+	var count int
+	err := DB.QueryRow("SELECT COUNT(*) FROM episodes").Scan(&count)
+
+	if err != nil {
+		return count
+	}
+
+	return 0
+}
+
 //GetAllEpisodes : get all episodes associated with specific podcast
 func (DB *EpisodeDB) GetAllEpisodes(podcastid int) []models.Episode {
 

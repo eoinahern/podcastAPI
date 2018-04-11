@@ -12,6 +12,19 @@ type UserDB struct {
 	*sql.DB
 }
 
+//CountRows : num rows
+func (DB *UserDB) CountRows() int {
+
+	var count int
+	err := DB.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
+
+	if err != nil {
+		return count
+	}
+
+	return 0
+}
+
 //CheckExist : check user exists in table by users email address.
 func (DB *UserDB) CheckExist(email string) bool {
 
