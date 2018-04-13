@@ -51,3 +51,61 @@ func (DB *MockUserDB) GetUser(email string) models.User {
 //MockPodcastDB mock podcastDB wrapper
 type MockPodcastDB struct {
 }
+
+func (DB *MockPodcastDB) CountRows() int {
+	return 1
+}
+
+func (DB *MockPodcastDB) GetAll() []models.SecurePodcast {
+	return getTestPodcasts()
+}
+
+func getTestPodcasts() []models.SecurePodcast {
+	return []models.SecurePodcast{
+		{
+			PodcastID:  1,
+			Icon:       "",
+			Name:       "church of whats happening now",
+			EpisodeNum: 2,
+			Details:    "edibles and the christ killer",
+		},
+		{
+			PodcastID:  2,
+			Icon:       "",
+			Name:       "jre",
+			EpisodeNum: 2,
+			Details:    " a podcast about stuff",
+		},
+	}
+}
+
+func (DB *MockPodcastDB) GetPodcast(username string, podcastname string) models.Podcast {
+	return models.Podcast{
+		PodcastID:  1,
+		Icon:       "",
+		Name:       podcastname,
+		EpisodeNum: 2,
+		Details:    "edibles and the christ killer",
+	}
+
+}
+
+func (DB *MockPodcastDB) CheckPodcastCreated(podID uint, podname string) models.Podcast {
+
+	return models.Podcast{
+		PodcastID:  podID,
+		Icon:       "",
+		Name:       podname,
+		EpisodeNum: 2,
+		Details:    "edibles and the christ killer",
+	}
+
+}
+
+func (DB *MockPodcastDB) CreatePodcast(podcast *models.Podcast) {
+
+}
+
+func (DB *MockPodcastDB) UpdatePodcastNumEpisodes(id uint) {
+
+}
