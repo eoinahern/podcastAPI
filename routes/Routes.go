@@ -28,7 +28,7 @@ type RegisterHandler struct {
 
 //ConfirmRegistrationHandler : confirm registration via email get request
 type ConfirmRegistrationHandler struct {
-	DB *repository.UserDB
+	DB repository.UserDBInt
 }
 
 //CreateSessionHandler : create a session and return jwt token
