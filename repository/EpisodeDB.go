@@ -2,10 +2,20 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/eoinahern/podcastAPI/models"
 )
+
+//EpisodeDBInt interface
+type EpisodeDBInt interface {
+	CountRows() int
+	GetAllEpisodes(podcastid int) []models.Episode
+	AddEpisode(episode models.Episode) error
+	GetSingleEpisode(podcastID uint, episodeID uint) models.Episode
+	GetLastEpisode() models.Episode
+}
 
 //EpisodeDB : collect, maintain epoisode data in DB
 type EpisodeDB struct {
@@ -67,7 +77,19 @@ func (DB *EpisodeDB) AddEpisode(episode models.Episode) error {
 		log.Println(err)
 	}
 
-	_, err = stmt.Exec(episode.PodID, episode.Created, episode.Updated, episode.URL, episode.Downloads, episode.Blurb)
+	res, err := stmt.Exec(episode.PodID, episode.Created, episode.Updated, episode.URL, episode.Downloads, episode.Blurb)
+
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		return err
+	}
+
+	insertID, _ := res.LastInsertId()
+	rowsAffected, _ := res.RowsAffected()
+	fmt.Println(fmt.Sprintf("last insert id :  %d ", insertID))
+	fmt.Println(fmt.Sprintf("rows affected:  %d ", rowsAffected))
+
 	return err
 
 }

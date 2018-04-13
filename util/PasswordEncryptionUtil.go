@@ -6,6 +6,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+//PasswordEncryptUtilInt interface
+type PasswordEncryptUtilInt interface {
+	Encrypt(password string) string
+	CheckSame(DBpassword string, sentPassword string) bool
+}
+
 //PasswordEncryptUtil : used to encrypt password and check if its valid
 type PasswordEncryptUtil struct {
 }

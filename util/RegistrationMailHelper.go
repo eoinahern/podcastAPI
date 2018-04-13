@@ -9,6 +9,11 @@ import (
 	"github.com/eoinahern/podcastAPI/models"
 )
 
+//MailRequestInt interface facilitate mocking
+type MailRequestInt interface {
+	SendMail() (bool, error)
+}
+
 const (
 	mime string = "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
 	//subject string = "Subject: Registration\n"

@@ -7,6 +7,16 @@ import (
 	"github.com/eoinahern/podcastAPI/models"
 )
 
+//PodcastDBInt interface
+type PodcastDBInt interface {
+	CountRows() int
+	GetAll() []models.SecurePodcast
+	GetPodcast(username string, podcastname string) models.Podcast
+	CheckPodcastCreated(podID uint, podname string) models.Podcast
+	CreatePodcast(podcast *models.Podcast) error
+	UpdatePodcastNumEpisodes(id uint)
+}
+
 //PodcastDB : podcast database helper
 type PodcastDB struct {
 	*sql.DB
