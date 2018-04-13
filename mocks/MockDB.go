@@ -109,3 +109,59 @@ func (DB *MockPodcastDB) CreatePodcast(podcast *models.Podcast) {
 func (DB *MockPodcastDB) UpdatePodcastNumEpisodes(id uint) {
 
 }
+
+type MockEpisodeDB struct {
+}
+
+func getMockEpisode() models.Episode {
+	return models.Episode{
+		EpisodeID: 1,
+		PodID:     2,
+		Created:   "",
+		Updated:   "",
+		URL:       "google.com/files/episode",
+		Downloads: 200,
+		Blurb:     "episode featuring bill oherlihy",
+	}
+}
+
+func (DB *MockEpisodeDB) CountRows() int {
+	return 1
+}
+
+func (DB *MockEpisodeDB) GetAllEpisodes(podcastid int) []models.Episode {
+
+	return []models.Episode{
+		{
+			EpisodeID: 1,
+			PodID:     2,
+			Created:   "",
+			Updated:   "",
+			URL:       "google.com/files/episode",
+			Downloads: 200,
+			Blurb:     "episode featuring bill oherlihy",
+		},
+		{
+			EpisodeID: 2,
+			PodID:     3,
+			Created:   "",
+			Updated:   "",
+			URL:       "google.com/files/episode2",
+			Downloads: 117,
+			Blurb:     "episode featuring lee syatt",
+		},
+	}
+
+}
+
+func (DB *MockEpisodeDB) AddEpisode(episode models.Episode) error {
+	return nil
+}
+
+func (DB *MockEpisodeDB) GetSingleEpisode(podcastID uint, episodeID uint) models.Episode {
+	return getMockEpisode()
+}
+
+func (DB *MockEpisodeDB) GetLastEpisode() models.Episode {
+	return getMockEpisode()
+}
