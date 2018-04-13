@@ -85,7 +85,7 @@ func main() {
 
 func setUpProduction(router *mux.Router, prodDB *sql.DB, signingKey string) {
 
-	userDB := &repository.UserDB{DB: prodDB}
+	var userDB repository.UserDBInt = &repository.UserDB{DB: prodDB}
 	episodeDB := &repository.EpisodeDB{DB: prodDB}
 	podcastDB := &repository.PodcastDB{DB: prodDB}
 	jwtTokenUtil := &util.JwtTokenUtil{SigningKey: signingKey, DB: userDB}

@@ -21,7 +21,7 @@ import (
 //RegisterHandler : register user initially
 type RegisterHandler struct {
 	EmailValidator  *validation.EmailValidation
-	DB              *repository.UserDB
+	DB              repository.UserDBInt
 	MailHelper      *util.MailRequest
 	PassEncryptUtil *util.PasswordEncryptUtil
 }
@@ -33,7 +33,7 @@ type ConfirmRegistrationHandler struct {
 
 //CreateSessionHandler : create a session and return jwt token
 type CreateSessionHandler struct {
-	DB              *repository.UserDB
+	DB              repository.UserDBInt
 	PassEncryptUtil *util.PasswordEncryptUtil
 	JwtTokenUtil    *util.JwtTokenUtil
 }
@@ -46,13 +46,13 @@ type CreatePodcastHandler struct {
 
 //GetPodcastsHandler : get all podcasts
 type GetPodcastsHandler struct {
-	UserDB    *repository.UserDB
+	UserDB    repository.UserDBInt
 	PodcastDB *repository.PodcastDB
 }
 
 //GetEpisodesHandler : all episodes associated with specific podcast
 type GetEpisodesHandler struct {
-	UserDB    *repository.UserDB
+	UserDB    repository.UserDBInt
 	EpisodeDB *repository.EpisodeDB
 }
 
@@ -64,14 +64,14 @@ type DownloadEpisodeHandler struct {
 //UploadEpisodeHandler : allows admin of a podcast to upload an episode file
 type UploadEpisodeHandler struct {
 	//credentials. then upload to network
-	UserDB    *repository.UserDB
+	UserDB    repository.UserDBInt
 	EpisodeDB *repository.EpisodeDB
 	PodcastDB *repository.PodcastDB
 }
 
 //DeleteEpisodeHandler : delete episode from specific podcast. Admin use
 type DeleteEpisodeHandler struct {
-	UserDB    *repository.UserDB
+	UserDB    repository.UserDBInt
 	PodcastDB *repository.PodcastDB
 }
 
