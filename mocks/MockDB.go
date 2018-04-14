@@ -9,13 +9,13 @@ type MockUserDB struct {
 }
 
 //CountRows : mocking count rows
-func CountRows() int {
+func (DB *MockUserDB) CountRows() int {
 	return 1
 }
 
 //CheckExist check exist mock
 func (DB *MockUserDB) CheckExist(email string) bool {
-	return true
+	return false
 }
 
 //ValidateUserPlusRegToken mock imp

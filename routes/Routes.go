@@ -22,7 +22,7 @@ import (
 type RegisterHandler struct {
 	EmailValidator  *validation.EmailValidation
 	DB              repository.UserDBInt
-	MailHelper      *util.MailRequest
+	MailHelper      util.MailRequestInt
 	PassEncryptUtil *util.PasswordEncryptUtil
 }
 
@@ -123,10 +123,10 @@ func (r *RegisterHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	r.DB.Insert(&user)
 
-	//send automated email with email link
-	r.MailHelper.BodyParams = &models.TemplateParams{User: user.UserName, Token: user.RegToken}
-	r.MailHelper.ToId = user.UserName
+	//send automated email with email link#
 
+	r.MailHelper.SetBodyParams(&models.TemplateParams{User: user.UserName, Token: user.RegToken})
+	r.MailHelper.SetToID(user.UserName)
 	_, err = r.MailHelper.SendMail()
 
 	if err != nil {
@@ -156,10 +156,6 @@ func (c *ConfirmRegistrationHandler) ServeHTTP(w http.ResponseWriter, req *http.
 	token := params.Get("token")
 
 	w.Header().Set("Content-Type", "text/html")
-
-	fmt.Println(params)
-	fmt.Println(user)
-	fmt.Println(token)
 
 	if c.DB.ValidateUserPlusRegToken(user, token) {
 		c.DB.SetVerified(user, token)

@@ -12,6 +12,8 @@ import (
 //MailRequestInt interface facilitate mocking
 type MailRequestInt interface {
 	SendMail() (bool, error)
+	SetBodyParams(params *models.TemplateParams)
+	SetToID(toid string)
 }
 
 const (
@@ -22,9 +24,19 @@ const (
 //MailRequest : send a mail to a specific email using html template.
 type MailRequest struct {
 	SenderId     string
-	ToId         string
+	toId         string
 	BodyLocation string
-	BodyParams   *models.TemplateParams
+	bodyParams   *models.TemplateParams
+}
+
+//SetBodyParams set bodyParams
+func (m *MailRequest) SetBodyParams(bodyParams *models.TemplateParams) {
+	m.bodyParams = bodyParams
+}
+
+//SetToID set toId
+func (m *MailRequest) SetToID(toid string) {
+	m.toId = toid
 }
 
 //SendMail : send a mail via smtp server using plainauth
@@ -33,7 +45,7 @@ func (m *MailRequest) SendMail() (bool, error) {
 	smtpConf := &models.SmtpConfig{}
 	smtpConf.ReadFromFile("config/smtpConfig.json")
 	auth := smtp.PlainAuth("", smtpConf.Username, smtpConf.Password, smtpConf.Server)
-	err := smtp.SendMail(smtpConf.Server+":"+smtpConf.Port, auth, m.SenderId, []string{m.ToId}, []byte(m.buildMail()))
+	err := smtp.SendMail(smtpConf.Server+":"+smtpConf.Port, auth, m.SenderId, []string{m.toId}, []byte(m.buildMail()))
 
 	if err != nil {
 		return false, err
@@ -58,7 +70,7 @@ func (m *MailRequest) constructTemplate() string {
 	}
 
 	buf := new(bytes.Buffer)
-	err = template.Execute(buf, m.BodyParams)
+	err = template.Execute(buf, m.bodyParams)
 
 	if err != nil {
 		log.Println(err)
