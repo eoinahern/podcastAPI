@@ -76,6 +76,17 @@ func TestConfirmRegistration(t *testing.T) {
 
 func TestCreateSession(t *testing.T) {
 
+	createSessionHandler := &CreateSessionHandler{DB: &mocks.MockUserDB{}, PassEncryptUtil: &mocks.MockPasswordEncryptUitl{}, JwtTokenUtil: &util.JwtTokenUtil{}}
+
+	user, _ := json.Marshal(models.User{UserName: "eoin@yahoo.co.uk", Password: "hellothere"})
+	request, err := http.NewRequest(http.MethodPost, host, bytes.NewReader(user))
+
+	if err != nil {
+		t.Error(err)
+	}
+	respWriter := httptest.NewRecorder()
+	createSessionHandler.ServeHTTP(respWriter, request)
+
 }
 
 func TestGetPodcasts(t *testing.T) {

@@ -34,7 +34,7 @@ type ConfirmRegistrationHandler struct {
 //CreateSessionHandler : create a session and return jwt token
 type CreateSessionHandler struct {
 	DB              repository.UserDBInt
-	PassEncryptUtil *util.PasswordEncryptUtil
+	PassEncryptUtil util.PasswordEncryptUtilInt
 	JwtTokenUtil    *util.JwtTokenUtil
 }
 

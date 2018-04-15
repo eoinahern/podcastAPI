@@ -23,3 +23,15 @@ func (m *MockMailRequest) SetBodyParams(bodyParams *models.TemplateParams) {
 func (m *MockMailRequest) SetToID(toid string) {
 	m.toId = toid
 }
+
+// MockPasswordEncryptUitl mock implementation
+type MockPasswordEncryptUitl struct {
+}
+
+func (m *MockPasswordEncryptUitl) Encrypt(password string) string {
+	return password
+}
+
+func (m *MockPasswordEncryptUitl) CheckSame(dbPass string, sentPass string) bool {
+	return true
+}
