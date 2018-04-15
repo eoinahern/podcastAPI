@@ -1,6 +1,8 @@
 package mocks
 
 import (
+	"strings"
+
 	"github.com/eoinahern/podcastAPI/models"
 )
 
@@ -20,7 +22,12 @@ func (DB *MockUserDB) CheckExist(email string) bool {
 
 //ValidateUserPlusRegToken mock imp
 func (DB *MockUserDB) ValidateUserPlusRegToken(email string, regToken string) bool {
-	return true
+
+	if strings.Compare(email, "eoin@yahoo.com") == 0 && strings.Compare(regToken, "1234") == 0 {
+		return true
+	}
+
+	return false
 }
 
 //SetVerified mock setVerified

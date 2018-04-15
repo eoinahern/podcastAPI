@@ -63,5 +63,13 @@ func TestConfirmRegistration(t *testing.T) {
 	regHandler.ServeHTTP(responseWriter, request)
 	assert.Equal(t, http.StatusOK, responseWriter.Code)
 	assert.Equal(t, "text/html", responseWriter.Header().Get("Content-Type"))
+	assert.Equal(t, "<h1> problem verifying user? <h1>", responseWriter.Body.String())
+
+	//return reg confirm pass
+	requestPass, _ := http.NewRequest(http.MethodPost, "localhost?user=eoin@yahoo.com&token=1234", nil)
+	responseWriterPass := httptest.NewRecorder()
+
+	regHandler.ServeHTTP(responseWriterPass, requestPass)
+	assert.Equal(t, "<h1>  user eoin@yahoo.com registration confirmed<h1>", responseWriterPass.Body.String())
 
 }

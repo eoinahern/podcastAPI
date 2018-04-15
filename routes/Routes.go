@@ -90,9 +90,6 @@ func (r *RegisterHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	//3. send confirmation emailValidator
 	//4. new route to handle reg verification
 
-	//params := req.URL.Query()
-	//operation := params.Get("operation")
-
 	decoder := json.NewDecoder(req.Body)
 	var user models.User
 	err := decoder.Decode(&user)
