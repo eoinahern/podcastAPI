@@ -38,7 +38,7 @@ func TestRegisterHandler(t *testing.T) {
 	assert.Equal(t, 200, responseWriter.Code)
 	assert.Equal(t, "application/json", responseWriter.Header().Get("Content-Type"))
 
-	//call with empty params
+	// call with empty params
 	user, _ = json.Marshal(models.User{UserName: "", Password: ""})
 	ReqNoPass, _ := http.NewRequest(http.MethodPost, host, bytes.NewReader(user))
 	responseWriter = httptest.NewRecorder()
@@ -65,11 +65,53 @@ func TestConfirmRegistration(t *testing.T) {
 	assert.Equal(t, "text/html", responseWriter.Header().Get("Content-Type"))
 	assert.Equal(t, "<h1> problem verifying user? <h1>", responseWriter.Body.String())
 
-	//return reg confirm pass
+	// return reg confirm pass
 	requestPass, _ := http.NewRequest(http.MethodPost, "localhost?user=eoin@yahoo.com&token=1234", nil)
 	responseWriterPass := httptest.NewRecorder()
 
 	regHandler.ServeHTTP(responseWriterPass, requestPass)
 	assert.Equal(t, "<h1>  user eoin@yahoo.com registration confirmed<h1>", responseWriterPass.Body.String())
+
+}
+
+func TestCreateSession(t *testing.T) {
+
+}
+
+func TestGetPodcasts(t *testing.T) {
+
+	getPodcastsHandler := &GetPodcastsHandler{UserDB: &mocks.MockUserDB{}, PodcastDB: &mocks.MockPodcastDB{}}
+
+	request, err := http.NewRequest(http.MethodGet, host, nil)
+	respWriter := httptest.NewRecorder()
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	getPodcastsHandler.ServeHTTP(respWriter, request)
+
+	var podcasts []models.SecurePodcast
+	json.NewDecoder(respWriter.Body).Decode(&podcasts)
+
+	assert.Equal(t, 2, len(podcasts))
+	assert.Equal(t, 2, podcasts[0].EpisodeNum)
+	assert.Equal(t, 2, podcasts[1].EpisodeNum)
+
+}
+
+func TestCreatePodcast(t *testing.T) {
+
+}
+
+func TestGetEPisode(t *testing.T) {
+
+}
+
+func TestDownloadEPisode(t *testing.T) {
+
+}
+
+func TestUploadEpisode(t *testing.T) {
 
 }

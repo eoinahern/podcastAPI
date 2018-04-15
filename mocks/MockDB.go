@@ -109,8 +109,8 @@ func (DB *MockPodcastDB) CheckPodcastCreated(podID uint, podname string) models.
 
 }
 
-func (DB *MockPodcastDB) CreatePodcast(podcast *models.Podcast) {
-
+func (DB *MockPodcastDB) CreatePodcast(podcast *models.Podcast) error {
+	return nil
 }
 
 func (DB *MockPodcastDB) UpdatePodcastNumEpisodes(id uint) {

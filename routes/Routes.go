@@ -47,7 +47,7 @@ type CreatePodcastHandler struct {
 //GetPodcastsHandler : get all podcasts
 type GetPodcastsHandler struct {
 	UserDB    repository.UserDBInt
-	PodcastDB *repository.PodcastDB
+	PodcastDB repository.PodcastDBInt
 }
 
 //GetEpisodesHandler : all episodes associated with specific podcast
