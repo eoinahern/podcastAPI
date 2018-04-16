@@ -124,6 +124,17 @@ func TestCreatePodcast(t *testing.T) {
 
 func TestGetEPisode(t *testing.T) {
 
+	getEpisodeHandler := &GetEpisodesHandler{}
+
+	respWriter := httptest.NewRecorder()
+	request, err := http.NewRequest(http.MethodPost, host, nil)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	getEpisodeHandler.ServeHTTP(respWriter, request)
+
 }
 
 func TestDownloadEpisode(t *testing.T) {

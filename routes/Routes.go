@@ -285,18 +285,12 @@ func (g *DownloadEpisodeHandler) ServeHTTP(w http.ResponseWriter, req *http.Requ
 	podcastName := requestParams["podcastname"]
 	podcastFileName := requestParams["podcastfilename"]
 
-	fmt.Println(podcastID)
-	fmt.Println(podcastName)
-	fmt.Println(podcastFileName)
-	fmt.Println(g.BaseLocation)
-
 	if len(podcastID) == 0 || len(podcastName) == 0 || len(podcastFileName) == 0 {
 		http.Error(w, "unrecognised", http.StatusBadRequest)
 		return
 	}
 
 	podlocation := fmt.Sprintf("%s/%s/%s/%s", g.BaseLocation, podcastID, podcastName, podcastFileName)
-	fmt.Println(podlocation)
 	filedata, err := ioutil.ReadFile(podlocation)
 
 	if err != nil {
