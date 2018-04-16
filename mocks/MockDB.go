@@ -86,8 +86,8 @@ func getTestPodcasts() []models.SecurePodcast {
 	}
 }
 
-func (DB *MockPodcastDB) GetPodcast(username string, podcastname string) models.Podcast {
-	return models.Podcast{
+func (DB *MockPodcastDB) GetPodcast(username string, podcastname string) *models.Podcast {
+	return &models.Podcast{
 		PodcastID:  1,
 		Icon:       "",
 		Name:       podcastname,

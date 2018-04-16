@@ -87,6 +87,11 @@ func TestCreateSession(t *testing.T) {
 	respWriter := httptest.NewRecorder()
 	createSessionHandler.ServeHTTP(respWriter, request)
 
+	var returnedUser models.User
+	json.NewDecoder(respWriter.Body).Decode(&returnedUser)
+
+	assert.Equal(t, "eoin@yahoo.co.uk", returnedUser.UserName)
+
 }
 
 func TestGetPodcasts(t *testing.T) {
