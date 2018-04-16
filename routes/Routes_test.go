@@ -157,12 +157,13 @@ func TestDownloadEpisode(t *testing.T) {
 	downloadEpisodeHandler.ServeHTTP(respWriter, request)
 	assert.Equal(t, http.StatusNotFound, respWriter.Code)
 
+	//passes local. doesnt pass on travis-ci because of gitignore!!
 	request = mux.SetURLVars(request, map[string]string{"podcastid": "test", "podcastname": "mypod", "podcastfilename": "sample.mp3"})
 	respWriter = httptest.NewRecorder()
 
 	downloadEpisodeHandler.ServeHTTP(respWriter, request)
 	assert.Equal(t, http.StatusOK, respWriter.Code)
-	//assert.Equal(t, "audio/mpeg", respWriter.Header().Get("Content-Type"))
+	assert.Equal(t, "audio/mpeg", respWriter.Header().Get("Content-Type"))
 
 }
 
