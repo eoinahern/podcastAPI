@@ -7,6 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/gorilla/mux"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/eoinahern/podcastAPI/mocks"
@@ -124,7 +126,21 @@ func TestGetEPisode(t *testing.T) {
 
 }
 
-func TestDownloadEPisode(t *testing.T) {
+func TestDownloadEpisode(t *testing.T) {
+
+	downloadEpisodeHandler := &DownloadEpisodeHandler{BaseLocation: "../debug_files"}
+	reqURL := "http://localhost:8080/episodes/{podcastid}/{podcastname}/{podcastfilename}"
+	request, err := http.NewRequest(http.MethodGet, reqURL, nil)
+
+	mux.SetURLVars()
+
+	if err != nil {
+		t.Error(err)
+	}
+	respWriter := httptest.NewRecorder()
+
+	downloadEpisodeHandler.ServeHTTP(respWriter, request)
+	assert.Equal(t, respWriter.Code, http.StatusBadRequest)
 
 }
 

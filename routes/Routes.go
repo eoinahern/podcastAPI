@@ -40,8 +40,9 @@ type CreateSessionHandler struct {
 
 //CreatePodcastHandler : allows user to create a podcast
 type CreatePodcastHandler struct {
-	PodcastDB  *repository.PodcastDB
-	FileHelper *util.FileHelperUtil
+	PodcastDB    *repository.PodcastDB
+	FileHelper   *util.FileHelperUtil
+	BaseLocation string
 }
 
 //GetPodcastsHandler : get all podcasts
@@ -58,7 +59,8 @@ type GetEpisodesHandler struct {
 
 //DownloadEpisodeHandler : download a specific episode data
 type DownloadEpisodeHandler struct {
-	EpisodeDB *repository.EpisodeDB
+	EpisodeDB    *repository.EpisodeDB
+	BaseLocation string
 }
 
 //UploadEpisodeHandler : allows admin of a podcast to upload an episode file
@@ -80,7 +82,6 @@ var tokenErr = []byte(`{ "error" : "problem with token"}`)
 var internalErr = []byte(`{ "error" : "internal error"}`)
 
 const notAllowedErrStr string = "method not allowed"
-const podcastFiles string = "./files"
 
 func (r *RegisterHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
@@ -214,7 +215,7 @@ func (c *CreatePodcastHandler) ServeHTTP(w http.ResponseWriter, req *http.Reques
 		return
 	}
 
-	path := fmt.Sprintf("%s/%d/%s", podcastFiles, podcast.PodcastID, podcastname)
+	path := fmt.Sprintf("%s/%d/%s", c.BaseLocation, podcast.PodcastID, podcastname)
 
 	fmt.Println("path " + path)
 
@@ -277,16 +278,24 @@ func (g *DownloadEpisodeHandler) ServeHTTP(w http.ResponseWriter, req *http.Requ
 
 	requestParams := mux.Vars(req)
 
+	fmt.Println(req.URL)
+	fmt.Println(requestParams)
+
 	podcastID := requestParams["podcastid"]
 	podcastName := requestParams["podcastname"]
 	podcastFileName := requestParams["podcastfilename"]
+
+	fmt.Println(podcastID)
+	fmt.Println(podcastName)
+	fmt.Println(podcastFileName)
+	fmt.Println(g.BaseLocation)
 
 	if len(podcastID) == 0 || len(podcastName) == 0 || len(podcastFileName) == 0 {
 		http.Error(w, "unrecognised", http.StatusBadRequest)
 		return
 	}
 
-	podlocation := fmt.Sprintf("%s/%s/%s/%s", podcastFiles, podcastID, podcastName, podcastFileName)
+	podlocation := fmt.Sprintf("%s/%s/%s/%s", g.BaseLocation, podcastID, podcastName, podcastFileName)
 	fmt.Println(podlocation)
 	filedata, err := ioutil.ReadFile(podlocation)
 
