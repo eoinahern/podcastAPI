@@ -120,6 +120,30 @@ func TestGetPodcasts(t *testing.T) {
 
 func TestCreatePodcast(t *testing.T) {
 
+	createPodcastHandler := &CreatePodcastHandler{PodcastDB: &mocks.MockPodcastDB{}, FileHelper: &mocks.MockFileHelperUtil{}, BaseLocation: "../debug_files"}
+
+	respWriter := httptest.NewRecorder()
+	podcast := &models.Podcast{PodcastID: 1, UserEmail: "eoin@yahoo.co.uk", Name: "podcast", Icon: "", Details: "a podcast"}
+	encodedPodcast, _ := json.Marshal(podcast)
+	request, err := http.NewRequest(http.MethodPost, "localhost/podcasts?podcastname=podcast", bytes.NewBuffer(encodedPodcast))
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	createPodcastHandler.ServeHTTP(respWriter, request)
+	assert.Equal(t, http.StatusOK, respWriter.Code)
+
+	request, _ = http.NewRequest(http.MethodPost, "localhost/podcasts?podcastname=pod", bytes.NewBuffer(encodedPodcast))
+	respWriter = httptest.NewRecorder()
+
+	createPodcastHandler.ServeHTTP(respWriter, request)
+	var podcastReturned models.Podcast
+	json.NewDecoder(respWriter.Body).Decode(&podcastReturned)
+
+	assert.Equal(t, http.StatusOK, respWriter.Code)
+	assert.Equal(t, "pod", podcastReturned.Name)
+
 }
 
 func TestGetEPisode(t *testing.T) {
@@ -179,5 +203,19 @@ func TestDownloadEpisode(t *testing.T) {
 }
 
 func TestUploadEpisode(t *testing.T) {
+
+	uploadEpisodeHandler := &UploadEpisodeHandler{}
+
+	respWriter := httptest.NewRecorder()
+	request, err := http.NewRequest(http.MethodPost, host, nil)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	//var buf bytes.Buffer
+	//multipartWriter := multipart.NewWriter(&buf)
+
+	uploadEpisodeHandler.ServeHTTP(respWriter, request)
 
 }

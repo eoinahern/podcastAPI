@@ -35,3 +35,19 @@ func (m *MockPasswordEncryptUitl) Encrypt(password string) string {
 func (m *MockPasswordEncryptUitl) CheckSame(dbPass string, sentPass string) bool {
 	return true
 }
+
+type MockFileHelperUtil struct {
+}
+
+func (m *MockFileHelperUtil) CheckDirFileExists(path string) bool {
+
+	if path == "../debug_files/1/podcast" {
+		return true
+	}
+
+	return false
+}
+
+func (m *MockFileHelperUtil) CreateDir(dirpath string) {
+
+}

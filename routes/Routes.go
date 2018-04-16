@@ -40,8 +40,8 @@ type CreateSessionHandler struct {
 
 //CreatePodcastHandler : allows user to create a podcast
 type CreatePodcastHandler struct {
-	PodcastDB    *repository.PodcastDB
-	FileHelper   *util.FileHelperUtil
+	PodcastDB    repository.PodcastDBInt
+	FileHelper   util.FileHelperUtilInt
 	BaseLocation string
 }
 
@@ -208,7 +208,6 @@ func (c *CreatePodcastHandler) ServeHTTP(w http.ResponseWriter, req *http.Reques
 	}
 
 	podcastname := req.URL.Query().Get("podcastname")
-	fmt.Println(podcastname)
 
 	if len(podcastname) == 0 {
 		http.Error(w, http.StatusText(22), http.StatusBadRequest)
@@ -224,8 +223,6 @@ func (c *CreatePodcastHandler) ServeHTTP(w http.ResponseWriter, req *http.Reques
 		podcast.Location = path
 		podcast.Name = podcastname
 		err = c.PodcastDB.CreatePodcast(&podcast)
-
-		fmt.Println(podcast)
 
 		if err != nil {
 			http.Error(w, http.StatusText(51), http.StatusInternalServerError)
