@@ -132,8 +132,6 @@ func TestDownloadEpisode(t *testing.T) {
 	reqURL := "http://localhost:8080/episodes/{podcastid}/{podcastname}/{podcastfilename}"
 	request, err := http.NewRequest(http.MethodGet, reqURL, nil)
 
-	mux.SetURLVars()
-
 	if err != nil {
 		t.Error(err)
 	}
@@ -141,6 +139,19 @@ func TestDownloadEpisode(t *testing.T) {
 
 	downloadEpisodeHandler.ServeHTTP(respWriter, request)
 	assert.Equal(t, respWriter.Code, http.StatusBadRequest)
+
+	request = mux.SetURLVars(request, map[string]string{"podcastid": "pod", "podcastname": "name", "podcastfilename": "filename"})
+	respWriter = httptest.NewRecorder()
+
+	downloadEpisodeHandler.ServeHTTP(respWriter, request)
+	assert.Equal(t, http.StatusNotFound, respWriter.Code)
+
+	request = mux.SetURLVars(request, map[string]string{"podcastid": "test", "podcastname": "mypod", "podcastfilename": "sample.mp3"})
+	respWriter = httptest.NewRecorder()
+
+	downloadEpisodeHandler.ServeHTTP(respWriter, request)
+	assert.Equal(t, http.StatusOK, respWriter.Code)
+	assert.Equal(t, "audio/mpeg", respWriter.Header().Get("Content-Type"))
 
 }
 
