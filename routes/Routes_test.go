@@ -124,16 +124,27 @@ func TestCreatePodcast(t *testing.T) {
 
 func TestGetEPisode(t *testing.T) {
 
-	getEpisodeHandler := &GetEpisodesHandler{}
+	getEpisodeHandler := &GetEpisodesHandler{UserDB: &mocks.MockUserDB{}, EpisodeDB: &mocks.MockEpisodeDB{}}
 
 	respWriter := httptest.NewRecorder()
-	request, err := http.NewRequest(http.MethodPost, host, nil)
+	request, err := http.NewRequest(http.MethodPost, "localhost?podcastid=1", nil)
 
 	if err != nil {
 		t.Error(err)
 	}
 
 	getEpisodeHandler.ServeHTTP(respWriter, request)
+
+	var episodes []models.Episode
+	json.NewDecoder(respWriter.Body).Decode(&episodes)
+	assert.Equal(t, uint(1), episodes[0].EpisodeID)
+	assert.Equal(t, uint(2), episodes[1].EpisodeID)
+
+	respWriter = httptest.NewRecorder()
+	request, _ = http.NewRequest(http.MethodPost, "localhost", nil)
+
+	getEpisodeHandler.ServeHTTP(respWriter, request)
+	assert.Equal(t, http.StatusBadRequest, respWriter.Code)
 
 }
 

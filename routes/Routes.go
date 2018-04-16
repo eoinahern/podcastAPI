@@ -54,7 +54,7 @@ type GetPodcastsHandler struct {
 //GetEpisodesHandler : all episodes associated with specific podcast
 type GetEpisodesHandler struct {
 	UserDB    repository.UserDBInt
-	EpisodeDB *repository.EpisodeDB
+	EpisodeDB repository.EpisodeDBInt
 }
 
 //DownloadEpisodeHandler : download a specific episode data
@@ -277,9 +277,6 @@ func (g *GetEpisodesHandler) ServeHTTP(w http.ResponseWriter, req *http.Request)
 func (g *DownloadEpisodeHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	requestParams := mux.Vars(req)
-
-	fmt.Println(req.URL)
-	fmt.Println(requestParams)
 
 	podcastID := requestParams["podcastid"]
 	podcastName := requestParams["podcastname"]
