@@ -67,11 +67,11 @@ type DownloadEpisodeHandler struct {
 type UploadEpisodeHandler struct {
 	//credentials. then upload to network
 	UserDB    repository.UserDBInt
-	EpisodeDB *repository.EpisodeDB
-	PodcastDB *repository.PodcastDB
+	EpisodeDB repository.EpisodeDBInt
+	PodcastDB repository.PodcastDBInt
 }
 
-//DeleteEpisodeHandler : delete episode from specific podcast. Admin use
+//DeleteEpisodeHandler delete episode from specific podcast. Admin use
 type DeleteEpisodeHandler struct {
 	UserDB    repository.UserDBInt
 	PodcastDB *repository.PodcastDB
@@ -94,8 +94,6 @@ func (r *RegisterHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	decoder := json.NewDecoder(req.Body)
 	var user models.User
 	err := decoder.Decode(&user)
-
-	fmt.Println(user)
 
 	if err != nil {
 		panic(err)
@@ -200,7 +198,6 @@ func (c *CreatePodcastHandler) ServeHTTP(w http.ResponseWriter, req *http.Reques
 
 	var podcast models.Podcast
 	err := json.NewDecoder(req.Body).Decode(&podcast)
-	fmt.Println(podcast)
 
 	if err != nil {
 		http.Error(w, http.StatusText(51), http.StatusInternalServerError)
@@ -215,8 +212,6 @@ func (c *CreatePodcastHandler) ServeHTTP(w http.ResponseWriter, req *http.Reques
 	}
 
 	path := fmt.Sprintf("%s/%d/%s", c.BaseLocation, podcast.PodcastID, podcastname)
-
-	fmt.Println("path " + path)
 
 	if !c.FileHelper.CheckDirFileExists(path) {
 		c.FileHelper.CreateDir(path)

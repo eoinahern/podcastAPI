@@ -3,8 +3,11 @@ package routes
 import (
 	"bytes"
 	"encoding/json"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/gorilla/mux"
@@ -144,6 +147,12 @@ func TestCreatePodcast(t *testing.T) {
 	assert.Equal(t, http.StatusOK, respWriter.Code)
 	assert.Equal(t, "pod", podcastReturned.Name)
 
+	request, _ = http.NewRequest(http.MethodPost, "localhost/podcasts?podcastname=", bytes.NewBuffer([]byte("{}")))
+	respWriter = httptest.NewRecorder()
+
+	createPodcastHandler.ServeHTTP(respWriter, request)
+	assert.Equal(t, http.StatusBadRequest, respWriter.Code)
+
 }
 
 func TestGetEPisode(t *testing.T) {
@@ -204,18 +213,86 @@ func TestDownloadEpisode(t *testing.T) {
 
 func TestUploadEpisode(t *testing.T) {
 
-	uploadEpisodeHandler := &UploadEpisodeHandler{}
+	uploadEpisodeHandler := &UploadEpisodeHandler{UserDB: &mocks.MockUserDB{}, PodcastDB: &mocks.MockPodcastDB{}, EpisodeDB: &mocks.MockEpisodeDB{}}
 
-	respWriter := httptest.NewRecorder()
-	request, err := http.NewRequest(http.MethodPost, host, nil)
+	var buf bytes.Buffer
+	multipartWriter := multipart.NewWriter(&buf)
+
+	episode := models.Episode{
+		PodID:   1,
+		Created: "stuff",
+		Updated: "stuff",
+		URL:     "",
+		Blurb:   "a blurb",
+	}
+
+	// open a testfile
+	fileLocation := "../debug_files/test/mypod/sample.mp3"
+	file, err := os.Open(fileLocation)
+	defer file.Close()
 
 	if err != nil {
 		t.Error(err)
 	}
 
-	//var buf bytes.Buffer
-	//multipartWriter := multipart.NewWriter(&buf)
+	// write file to multipartWriter
+	fileWriter, _ := multipartWriter.CreateFormFile("namefile", fileLocation)
+
+	_, err = io.Copy(fileWriter, file)
+	if err != nil {
+		t.Error(err)
+	}
+
+	// add struct to multipart
+	fieldWriter, err := multipartWriter.CreateFormField("data")
+	if err != nil {
+		t.Error(err)
+	}
+
+	mepisode, err := json.Marshal(episode)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	fieldWriter.Write(mepisode)
+	multipartWriter.Close()
+
+	request, err := http.NewRequest(http.MethodPost, "http://localhost:8080/upload?podcast=mypodcast", &buf)
+	request.Header.Set("Content-Type", multipartWriter.FormDataContentType())
+	respWriter := httptest.NewRecorder()
+
+	if err != nil {
+		t.Error(err)
+	}
 
 	uploadEpisodeHandler.ServeHTTP(respWriter, request)
+	assert.Equal(t, http.StatusOK, respWriter.Code)
+
+	// cause fileErr
+
+	buf.Reset()
+	multipartWriter = multipart.NewWriter(&buf)
+
+	fieldWriter, err = multipartWriter.CreateFormField("data")
+	if err != nil {
+		t.Error(err)
+	}
+
+	mepisode, err = json.Marshal(episode)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	fieldWriter.Write(mepisode)
+	multipartWriter.Close()
+
+	respWriter = httptest.NewRecorder()
+	request, _ = http.NewRequest(http.MethodPost, "http://localhost:8080/upload?podcast=mypodcast", &buf)
+	request.Header.Set("Content-Type", multipartWriter.FormDataContentType())
+
+	uploadEpisodeHandler.ServeHTTP(respWriter, request)
+	assert.Equal(t, http.StatusInternalServerError, respWriter.Code)
 
 }
