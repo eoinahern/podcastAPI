@@ -95,6 +95,13 @@ func TestValidatePassAndUser(t *testing.T) {
 
 	assert.Equal(t, true, val)
 
+	// return row error
+	row = sqlmock.NewRows([]string{"user_name", "verified", "password", "reg_token"}).RowError(1, fmt.Errorf("row errpr"))
+	mock.ExpectQuery(`SELECT \* FROM users WHERE user_name`).WithArgs("eoin", "pass").WillReturnRows(row)
+	val = userDB.ValidatePasswordAndUser("eoin", "pass")
+
+	assert.Equal(t, false, val)
+
 }
 
 func TestInsert(t *testing.T) {
