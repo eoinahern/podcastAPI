@@ -153,6 +153,13 @@ func TestCreatePodcast(t *testing.T) {
 	createPodcastHandler.ServeHTTP(respWriter, request)
 	assert.Equal(t, http.StatusBadRequest, respWriter.Code)
 
+	// test with no request body
+	request, _ = http.NewRequest(http.MethodPost, "localhost/podcasts?podcastname=podcast", bytes.NewBuffer([]byte("")))
+	respWriter = httptest.NewRecorder()
+
+	createPodcastHandler.ServeHTTP(respWriter, request)
+	assert.Equal(t, http.StatusInternalServerError, respWriter.Code)
+
 }
 
 func TestGetEPisode(t *testing.T) {
@@ -273,7 +280,6 @@ func TestUploadEpisode(t *testing.T) {
 
 	buf.Reset()
 	multipartWriter = multipart.NewWriter(&buf)
-
 	fieldWriter, err = multipartWriter.CreateFormField("data")
 	if err != nil {
 		t.Error(err)
@@ -294,5 +300,7 @@ func TestUploadEpisode(t *testing.T) {
 
 	uploadEpisodeHandler.ServeHTTP(respWriter, request)
 	assert.Equal(t, http.StatusInternalServerError, respWriter.Code)
+
+	// could add full test coverage but ok for now.
 
 }
