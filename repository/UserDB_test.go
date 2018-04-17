@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/eoinahern/podcastAPI/models"
@@ -32,6 +33,12 @@ func TestExist(t *testing.T) {
 
 	assert.Equal(t, true, val)
 
+	rows = sqlmock.NewRows([]string{"user_name"}).AddRow(0)
+	mock.ExpectQuery(`SELECT`).WithArgs("hello").WillReturnRows(rows)
+	val = userDb.CheckExist("hello")
+
+	assert.Equal(t, false, val)
+
 }
 
 func TestSetVerified(t *testing.T) {
@@ -49,13 +56,18 @@ func TestSetVerified(t *testing.T) {
 	userDB := UserDB{db}
 	rows := sqlmock.NewRows([]string{"user_name", "verified", "password", "reg_token"}).AddRow("eoin", true, "pass", "12345")
 	mock.ExpectQuery(`SELECT \* FROM users`).WithArgs("eoin", "12345").WillReturnRows(rows)
-	mock.ExpectPrepare("UPDATE users SET")
+	mock.ExpectPrepare("UPDATE users SET").WillReturnCloseError(err)
 	mock.ExpectExec("UPDATE users SET").WithArgs(true, "eoin", "12345").WillReturnResult(sqlmock.NewResult(1, 1))
 	userDB.SetVerified("eoin", "12345")
 
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("err %s", err)
 	}
+
+	// cause error
+	rows = sqlmock.NewRows([]string{"user_name", "verified", "password", "reg_token"}).RowError(1, fmt.Errorf("row error"))
+	mock.ExpectQuery(`SELECT \* FROM users`).WillReturnRows(rows)
+	userDB.SetVerified("eoin", "12345")
 
 }
 
@@ -157,5 +169,11 @@ func TestValidateUserPlusRegToken(t *testing.T) {
 	}
 
 	assert.Equal(t, true, val)
+
+	rows = sqlmock.NewRows([]string{"user_name"}).AddRow(0)
+	mock.ExpectQuery(`SELECT`).WithArgs("hello", "token").WillReturnRows(rows)
+	val = userDB.ValidateUserPlusRegToken("hello", "token")
+
+	assert.Equal(t, false, val)
 
 }
