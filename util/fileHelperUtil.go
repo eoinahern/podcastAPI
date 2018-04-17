@@ -5,6 +5,12 @@ import (
 	"os"
 )
 
+//FileHelperUtilInt interface
+type FileHelperUtilInt interface {
+	CheckDirFileExists(path string) bool
+	CreateDir(dirpath string)
+}
+
 //FileHelperUtil : helper methods for files
 type FileHelperUtil struct {
 	file []byte

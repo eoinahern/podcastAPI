@@ -10,10 +10,16 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
+//JwtTokenUtilInt interface
+type JwtTokenUtilInt interface {
+	CreateToken(username string) string
+	CheckTokenCredentials(token string) (int, string)
+}
+
 //JwtTokenUtil : helper methods for dealing with jwt token
 type JwtTokenUtil struct {
 	SigningKey string
-	DB         *repository.UserDB
+	DB         repository.UserDBInt
 }
 
 //CreateToken : create a jwt token

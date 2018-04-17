@@ -7,9 +7,34 @@ import (
 	"github.com/eoinahern/podcastAPI/models"
 )
 
+//UserDBInt interface
+type UserDBInt interface {
+	CountRows() int
+	CheckExist(email string) bool
+	ValidateUserPlusRegToken(email string, regToken string) bool
+	SetVerified(email string, regToken string)
+	ValidatePasswordAndUser(email string, password string) bool
+	Insert(user *models.User)
+	GetUser(email string) models.User
+}
+
 //UserDB : used to do CRUD operations on the users DB table.
 type UserDB struct {
 	*sql.DB
+}
+
+//CountRows : num rows
+func (DB *UserDB) CountRows() int {
+
+	var count int
+	row := DB.QueryRow("SELECT COUNT(*) FROM users")
+	err := row.Scan(&count)
+
+	if err == nil {
+		return count
+	}
+
+	return 0
 }
 
 //CheckExist : check user exists in table by users email address.
@@ -87,9 +112,8 @@ func (DB *UserDB) ValidatePasswordAndUser(email string, password string) bool {
 
 //Insert : Add new user to the users table.
 func (DB *UserDB) Insert(user *models.User) {
-	//DB.Save(user)
 
-	stmt, err := DB.Prepare("INSERT into users(username, verified, password, reg_token) VALUES(?,?,?,?)")
+	stmt, err := DB.Prepare("INSERT into users(user_name, verified, password, reg_token) VALUES(?,?,?,?)")
 
 	if err != nil {
 		log.Fatal(err)

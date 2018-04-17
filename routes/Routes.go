@@ -21,66 +21,67 @@ import (
 //RegisterHandler : register user initially
 type RegisterHandler struct {
 	EmailValidator  *validation.EmailValidation
-	DB              *repository.UserDB
-	MailHelper      *util.MailRequest
+	DB              repository.UserDBInt
+	MailHelper      util.MailRequestInt
 	PassEncryptUtil *util.PasswordEncryptUtil
 }
 
 //ConfirmRegistrationHandler : confirm registration via email get request
 type ConfirmRegistrationHandler struct {
-	DB *repository.UserDB
+	DB repository.UserDBInt
 }
 
 //CreateSessionHandler : create a session and return jwt token
 type CreateSessionHandler struct {
-	DB              *repository.UserDB
-	PassEncryptUtil *util.PasswordEncryptUtil
+	DB              repository.UserDBInt
+	PassEncryptUtil util.PasswordEncryptUtilInt
 	JwtTokenUtil    *util.JwtTokenUtil
 }
 
 //CreatePodcastHandler : allows user to create a podcast
 type CreatePodcastHandler struct {
-	PodcastDB  *repository.PodcastDB
-	FileHelper *util.FileHelperUtil
+	PodcastDB    repository.PodcastDBInt
+	FileHelper   util.FileHelperUtilInt
+	BaseLocation string
 }
 
 //GetPodcastsHandler : get all podcasts
 type GetPodcastsHandler struct {
-	UserDB    *repository.UserDB
-	PodcastDB *repository.PodcastDB
+	UserDB    repository.UserDBInt
+	PodcastDB repository.PodcastDBInt
 }
 
 //GetEpisodesHandler : all episodes associated with specific podcast
 type GetEpisodesHandler struct {
-	UserDB    *repository.UserDB
-	EpisodeDB *repository.EpisodeDB
+	UserDB    repository.UserDBInt
+	EpisodeDB repository.EpisodeDBInt
 }
 
 //DownloadEpisodeHandler : download a specific episode data
 type DownloadEpisodeHandler struct {
-	EpisodeDB *repository.EpisodeDB
+	EpisodeDB    *repository.EpisodeDB
+	BaseLocation string
 }
 
 //UploadEpisodeHandler : allows admin of a podcast to upload an episode file
 type UploadEpisodeHandler struct {
 	//credentials. then upload to network
-	UserDB    *repository.UserDB
-	EpisodeDB *repository.EpisodeDB
-	PodcastDB *repository.PodcastDB
+	UserDB    repository.UserDBInt
+	EpisodeDB repository.EpisodeDBInt
+	PodcastDB repository.PodcastDBInt
 }
 
-//DeleteEpisodeHandler : delete episode from specific podcast. Admin use
+//DeleteEpisodeHandler delete episode from specific podcast. Admin use
 type DeleteEpisodeHandler struct {
-	UserDB    *repository.UserDB
+	UserDB    repository.UserDBInt
 	PodcastDB *repository.PodcastDB
 }
 
 //vars
-var tokenErr []byte = []byte(`{ "error" : "problem with token"}`)
-var internalErr []byte = []byte(`{ "error" : "internal error"}`)
+var tokenErr = []byte(`{ "error" : "problem with token"}`)
+var internalErr = []byte(`{ "error" : "internal error"}`)
 
 const notAllowedErrStr string = "method not allowed"
-const podcastFiles string = "./files"
 
 func (r *RegisterHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
@@ -90,14 +91,9 @@ func (r *RegisterHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	//3. send confirmation emailValidator
 	//4. new route to handle reg verification
 
-	//params := req.URL.Query()
-	//operation := params.Get("operation")
-
 	decoder := json.NewDecoder(req.Body)
 	var user models.User
 	err := decoder.Decode(&user)
-
-	fmt.Println(user)
 
 	if err != nil {
 		panic(err)
@@ -123,10 +119,10 @@ func (r *RegisterHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	r.DB.Insert(&user)
 
-	//send automated email with email link
-	r.MailHelper.BodyParams = &models.TemplateParams{User: user.UserName, Token: user.RegToken}
-	r.MailHelper.ToId = user.UserName
+	//send automated email with email link#
 
+	r.MailHelper.SetBodyParams(&models.TemplateParams{User: user.UserName, Token: user.RegToken})
+	r.MailHelper.SetToID(user.UserName)
 	_, err = r.MailHelper.SendMail()
 
 	if err != nil {
@@ -156,10 +152,6 @@ func (c *ConfirmRegistrationHandler) ServeHTTP(w http.ResponseWriter, req *http.
 	token := params.Get("token")
 
 	w.Header().Set("Content-Type", "text/html")
-
-	fmt.Println(params)
-	fmt.Println(user)
-	fmt.Println(token)
 
 	if c.DB.ValidateUserPlusRegToken(user, token) {
 		c.DB.SetVerified(user, token)
@@ -206,7 +198,6 @@ func (c *CreatePodcastHandler) ServeHTTP(w http.ResponseWriter, req *http.Reques
 
 	var podcast models.Podcast
 	err := json.NewDecoder(req.Body).Decode(&podcast)
-	fmt.Println(podcast)
 
 	if err != nil {
 		http.Error(w, http.StatusText(51), http.StatusInternalServerError)
@@ -214,24 +205,19 @@ func (c *CreatePodcastHandler) ServeHTTP(w http.ResponseWriter, req *http.Reques
 	}
 
 	podcastname := req.URL.Query().Get("podcastname")
-	fmt.Println(podcastname)
 
 	if len(podcastname) == 0 {
 		http.Error(w, http.StatusText(22), http.StatusBadRequest)
 		return
 	}
 
-	path := fmt.Sprintf("%s/%d/%s", podcastFiles, podcast.PodcastID, podcastname)
-
-	fmt.Println("path " + path)
+	path := fmt.Sprintf("%s/%d/%s", c.BaseLocation, podcast.PodcastID, podcastname)
 
 	if !c.FileHelper.CheckDirFileExists(path) {
 		c.FileHelper.CreateDir(path)
 		podcast.Location = path
 		podcast.Name = podcastname
 		err = c.PodcastDB.CreatePodcast(&podcast)
-
-		fmt.Println(podcast)
 
 		if err != nil {
 			http.Error(w, http.StatusText(51), http.StatusInternalServerError)
@@ -293,8 +279,7 @@ func (g *DownloadEpisodeHandler) ServeHTTP(w http.ResponseWriter, req *http.Requ
 		return
 	}
 
-	podlocation := fmt.Sprintf("%s/%s/%s/%s", podcastFiles, podcastID, podcastName, podcastFileName)
-	fmt.Println(podlocation)
+	podlocation := fmt.Sprintf("%s/%s/%s/%s", g.BaseLocation, podcastID, podcastName, podcastFileName)
 	filedata, err := ioutil.ReadFile(podlocation)
 
 	if err != nil {
@@ -345,6 +330,7 @@ func (e *UploadEpisodeHandler) ServeHTTP(w http.ResponseWriter, req *http.Reques
 	lastepisode := e.EpisodeDB.GetLastEpisode()
 	filelocation := fmt.Sprintf("%s/%d.%s", podcast.Location, lastepisode.EpisodeID+1, "mp3")
 	episode.URL = filelocation
+
 	e.EpisodeDB.AddEpisode(episode)
 	ioutil.WriteFile(filelocation, fileBytes, os.ModePerm)
 	e.PodcastDB.UpdatePodcastNumEpisodes(podcast.PodcastID)

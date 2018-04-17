@@ -2,15 +2,38 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
 	"github.com/eoinahern/podcastAPI/models"
 )
 
+//PodcastDBInt interface
+type PodcastDBInt interface {
+	CountRows() int
+	GetAll() []models.SecurePodcast
+	GetPodcast(username string, podcastname string) *models.Podcast
+	CheckPodcastCreated(podID uint, podname string) models.Podcast
+	CreatePodcast(podcast *models.Podcast) error
+	UpdatePodcastNumEpisodes(id uint)
+}
+
 //PodcastDB : podcast database helper
 type PodcastDB struct {
 	*sql.DB
+}
+
+//CountRows : num rows
+func (DB *PodcastDB) CountRows() int {
+
+	var count int
+	row := DB.QueryRow("SELECT COUNT(*) FROM podcasts")
+	err := row.Scan(&count)
+
+	if err == nil {
+		return count
+	}
+
+	return 0
 }
 
 //GetAll : get all podcasts. not episodes just a podcast name!!
@@ -20,7 +43,6 @@ func (DB *PodcastDB) GetAll() []models.SecurePodcast {
 	var podcasts []models.SecurePodcast
 
 	rows, err := DB.Query("SELECT podcast_id, icon, name, episode_num, details from podcasts")
-
 	defer rows.Close()
 
 	if err != nil {
@@ -116,11 +138,7 @@ func (DB *PodcastDB) CreatePodcast(podcast *models.Podcast) error {
 	}
 
 	defer stmt.Close()
-	res, err := stmt.Exec(podcast.UserEmail, podcast.Icon, podcast.Name, podcast.Location, podcast.Details)
-
-	rows, _ := res.RowsAffected()
-	fmt.Println(fmt.Sprintf("num rows affected %s", string(rows)))
-	fmt.Println(err)
+	_, err = stmt.Exec(podcast.UserEmail, podcast.Icon, podcast.Name, podcast.Location, podcast.Details)
 
 	return err
 }

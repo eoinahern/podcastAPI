@@ -2,14 +2,38 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/eoinahern/podcastAPI/models"
 )
 
+//EpisodeDBInt interface
+type EpisodeDBInt interface {
+	CountRows() int
+	GetAllEpisodes(podcastid int) []models.Episode
+	AddEpisode(episode models.Episode) error
+	GetSingleEpisode(podcastID uint, episodeID uint) models.Episode
+	GetLastEpisode() models.Episode
+}
+
 //EpisodeDB : collect, maintain epoisode data in DB
 type EpisodeDB struct {
 	*sql.DB
+}
+
+//CountRows : num rows
+func (DB *EpisodeDB) CountRows() int {
+
+	var count int
+	row := DB.QueryRow("SELECT COUNT(*) FROM episodes")
+	err := row.Scan(&count)
+
+	if err == nil {
+		return count
+	}
+
+	return 0
 }
 
 //GetAllEpisodes : get all episodes associated with specific podcast
@@ -46,14 +70,26 @@ func (DB *EpisodeDB) GetAllEpisodes(podcastid int) []models.Episode {
 //AddEpisode : Add episode data to database
 func (DB *EpisodeDB) AddEpisode(episode models.Episode) error {
 
-	stmt, err := DB.Prepare("INSERT INTO episodes(episode_id, pod_id, created, updated, url, downloads, blurb) VALUES(?,?,?,?,?,?,?)")
+	stmt, err := DB.Prepare("INSERT INTO episodes(pod_id, created, updated, url, downloads, blurb) VALUES(?,?,?,?,?,?)")
 	defer stmt.Close()
 
 	if err != nil {
 		log.Println(err)
 	}
 
-	_, err = stmt.Exec(episode.EpisodeID, episode.PodID, episode.Created, episode.Updated, episode.URL, episode.Downloads, episode.Blurb)
+	res, err := stmt.Exec(episode.PodID, episode.Created, episode.Updated, episode.URL, episode.Downloads, episode.Blurb)
+
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		return err
+	}
+
+	insertID, _ := res.LastInsertId()
+	rowsAffected, _ := res.RowsAffected()
+	fmt.Println(fmt.Sprintf("last insert id :  %d ", insertID))
+	fmt.Println(fmt.Sprintf("rows affected:  %d ", rowsAffected))
+
 	return err
 
 }

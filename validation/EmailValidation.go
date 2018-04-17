@@ -2,6 +2,11 @@ package validation
 
 import "strings"
 
+//EmailValidationInt interface
+type EmailValidationInt interface {
+	CheckEmailValid(email string) bool
+}
+
 //EmailValidation : validates email string. could be updated
 type EmailValidation struct {
 }
