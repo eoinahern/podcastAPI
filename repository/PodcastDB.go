@@ -38,7 +38,7 @@ func (DB *PodcastDB) CountRows() int {
 
 //GetAll : get all podcasts. not episodes just a podcast name!!
 //TODO: need to page. potentially filter by category etc here!! popularity etc
-func (DB *PodcastDB) GetAll(start int, end int) []models.SecurePodcast {
+func (DB *PodcastDB) GetAll() []models.SecurePodcast {
 
 	var podcasts []models.SecurePodcast
 
