@@ -234,6 +234,26 @@ func (c *CreatePodcastHandler) ServeHTTP(w http.ResponseWriter, req *http.Reques
 
 func (g *GetPodcastsHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
+	queryParams := req.URL.Query()
+
+	limit, err := strconv.ParseUint(queryParams.Get("limit"), 10, 32)
+
+	if err != nil {
+		limit = 20
+	}
+
+	offset, err := strconv.ParseUint(queryParams.Get("offset"), 10, 32)
+
+	if err != nil {
+		offset = 0
+	}
+
+	byParam := queryParams.Get("by")
+
+	if byParam == "" {
+		byParam = "favourites"
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 
 	podcasts := g.PodcastDB.GetAll()
