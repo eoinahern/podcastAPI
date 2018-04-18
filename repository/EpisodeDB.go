@@ -61,10 +61,6 @@ func (DB *EpisodeDB) GetAllEpisodes(podcastid int) []models.Episode {
 
 	return episodes
 
-	/*var episodes []models.Episode
-	DB.Where("pod_id = ?", podcastid).Find(&episodes)
-	return episodes*/
-
 }
 
 //AddEpisode : Add episode data to database

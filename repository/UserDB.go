@@ -75,6 +75,7 @@ func (DB *UserDB) SetVerified(username string, token string) {
 
 	if err != nil {
 		log.Println(err)
+		return
 	}
 
 	user.Verified = true
@@ -83,6 +84,7 @@ func (DB *UserDB) SetVerified(username string, token string) {
 
 	if err != nil {
 		log.Println(err)
+		return
 	}
 
 	defer stmt.Close()
