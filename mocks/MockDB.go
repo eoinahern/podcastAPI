@@ -63,7 +63,7 @@ func (DB *MockPodcastDB) CountRows() int {
 	return 1
 }
 
-func (DB *MockPodcastDB) GetAll() []models.SecurePodcast {
+func (DB *MockPodcastDB) GetAll(limit uint16, offset uint16, by string) []models.SecurePodcast {
 	return getTestPodcasts()
 }
 

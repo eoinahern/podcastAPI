@@ -236,13 +236,15 @@ func (g *GetPodcastsHandler) ServeHTTP(w http.ResponseWriter, req *http.Request)
 
 	queryParams := req.URL.Query()
 
-	limit, err := strconv.ParseUint(queryParams.Get("limit"), 10, 32)
+	i, err := strconv.ParseUint(queryParams.Get("limit"), 10, 16)
+	limit := uint16(i) // a bit verbose to get a uint16 as strconv always returns uint64
 
 	if err != nil {
 		limit = 20
 	}
 
-	offset, err := strconv.ParseUint(queryParams.Get("offset"), 10, 32)
+	i, err = strconv.ParseUint(queryParams.Get("offset"), 10, 16)
+	offset := uint16(i)
 
 	if err != nil {
 		offset = 0
@@ -256,7 +258,7 @@ func (g *GetPodcastsHandler) ServeHTTP(w http.ResponseWriter, req *http.Request)
 
 	w.Header().Set("Content-Type", "application/json")
 
-	podcasts := g.PodcastDB.GetAll()
+	podcasts := g.PodcastDB.GetAll(limit, offset, byParam)
 	podcastsMarshaled, err := json.Marshal(podcasts)
 
 	if err != nil {
