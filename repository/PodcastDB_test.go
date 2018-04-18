@@ -39,7 +39,7 @@ func TestGetAll(t *testing.T) {
 	rows := sqlmock.NewRows(columns).AddRow(1, "icon", "podcast1", 1, "details about").AddRow(2, "icon.jpeg", "yayrus", 5, "mo details")
 	mock.ExpectQuery("SELECT podcast_id, icon, name").WillReturnRows(rows)
 
-	podcasts := podcastDB.GetAll()
+	podcasts := podcastDB.GetAll(1, 1)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("err %s", err)
