@@ -7,6 +7,10 @@ import (
 	"os"
 )
 
+//Categories categoy of podcast
+var Categories = []string{"arts", "comedy", "business", "technology", "health", "games", "music", "tv & film",
+	"religion & spirituality", "education", "kids & family", "news & politics", "science & medicine", "other", "sports & recreation", "science & medicine"}
+
 //Config : this is a type used to configure DB, and transmit Singning key.
 // Inintially read in from a file
 type Config struct {
@@ -76,6 +80,8 @@ type Podcast struct {
 	UserEmail  string    `json:"useremail"`
 	Icon       string    `json:"icon"`
 	Name       string    `json:"name"`
+	Category   string    `json:"category"`
+	Downloads  int64     `json:"downloads"`
 	Location   string    `json:"location"`
 	EpisodeNum int       `json:"episodenum"`
 	Details    string    `json:"details"`

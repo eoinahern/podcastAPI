@@ -131,14 +131,14 @@ func (DB *PodcastDB) UpdatePodcastNumEpisodes(id uint) {
 //CreatePodcast : save podcast to database
 func (DB *PodcastDB) CreatePodcast(podcast *models.Podcast) error {
 
-	stmt, err := DB.Prepare("INSERT INTO podcasts(user_email, icon, name, location, details) VALUES(?,?,?,?,?)")
+	stmt, err := DB.Prepare("INSERT INTO podcasts(user_email, icon, name, category, downloads, location, details) VALUES(?,?,?,?,?,?,?)")
 
 	if err != nil {
 		log.Println(err)
 	}
 
 	defer stmt.Close()
-	_, err = stmt.Exec(podcast.UserEmail, podcast.Icon, podcast.Name, podcast.Location, podcast.Details)
+	_, err = stmt.Exec(podcast.UserEmail, podcast.Icon, podcast.Name, podcast.Category, podcast.Downloads, podcast.Location, podcast.Details)
 
 	return err
 }

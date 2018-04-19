@@ -252,8 +252,21 @@ func (g *GetPodcastsHandler) ServeHTTP(w http.ResponseWriter, req *http.Request)
 
 	byParam := queryParams.Get("by")
 
+	// : TODO maybe a search by category also
 	if byParam == "" {
-		byParam = "favourites"
+		byParam = "downloads"
+	}
+
+	// param validation
+
+	if offset%10 != 0 || limit%10 != 0 {
+		http.Error(w, "limit and offset must be mod 10", http.StatusBadRequest)
+		return
+	}
+
+	if limit > 50 {
+		http.Error(w, "limit can be greateer than 50", http.StatusBadRequest)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
