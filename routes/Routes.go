@@ -300,14 +300,29 @@ func checkCategoryExists(category string) bool {
 
 func (g *GetEpisodesHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
-	podcastid, err := strconv.Atoi(req.URL.Query().Get("podcastid"))
+	reqParams := req.URL.Query()
+	podcastid, err := strconv.Atoi(reqParams.Get("podcastid"))
+
+	i, err := strconv.ParseUint(reqParams.Get("limit"), 10, 16)
+	limit := uint16(i)
+
+	if err != nil {
+		limit = 20
+	}
+
+	i, err = strconv.ParseUint(reqParams.Get("offset"), 10, 16)
+	offset := uint16(i)
+
+	if err != nil {
+		offset = 0
+	}
 
 	if err != nil {
 		http.Error(w, http.StatusText(22), http.StatusBadRequest)
 		return
 	}
 
-	episodes := g.EpisodeDB.GetAllEpisodes(podcastid)
+	episodes := g.EpisodeDB.GetAllEpisodes(podcastid, limit, offset)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(&episodes)
 }

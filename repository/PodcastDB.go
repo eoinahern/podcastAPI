@@ -48,7 +48,7 @@ func (DB *PodcastDB) GetAll(limit uint16, offset uint16, category string) []mode
 	if len(category) == 0 {
 		queryString = fmt.Sprintf("SELECT podcast_id, icon, name, category, downloads, episode_num, details from podcasts ORDER BY downloads DESC LIMIT %d OFFSET %d", limit, offset)
 	} else {
-		queryString = fmt.Sprintf("SELECT podcast_id, icon, name, category, downloads, episode_num, details from podcasts WHERE category = %s ORDER BY downloads DESC LIMIT %d OFFSET %d", category, limit, offset)
+		queryString = fmt.Sprintf("SELECT podcast_id, icon, name, category, downloads, episode_num, details from podcasts WHERE category = '%s' ORDER BY downloads DESC LIMIT %d OFFSET %d", category, limit, offset)
 	}
 
 	rows, err := DB.Query(queryString)

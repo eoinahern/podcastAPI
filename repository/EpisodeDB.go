@@ -11,7 +11,7 @@ import (
 //EpisodeDBInt interface
 type EpisodeDBInt interface {
 	CountRows() int
-	GetAllEpisodes(podcastid int) []models.Episode
+	GetAllEpisodes(podcastid int, limit uint16, offset uint16) []models.Episode
 	AddEpisode(episode models.Episode) error
 	GetSingleEpisode(podcastID uint, episodeID uint) models.Episode
 	GetLastEpisode() models.Episode
@@ -37,10 +37,11 @@ func (DB *EpisodeDB) CountRows() int {
 }
 
 //GetAllEpisodes : get all episodes associated with specific podcast
-func (DB *EpisodeDB) GetAllEpisodes(podcastid int) []models.Episode {
+func (DB *EpisodeDB) GetAllEpisodes(podcastid int, limit uint16, offset uint16) []models.Episode {
 
+	queryStr := fmt.Sprintf("SELECT * FROM episodes WHERE pod_id = '%d' ORDER BY created DESC LIMIT %d OFFSET %d", podcastid, limit, offset)
 	var episodes []models.Episode
-	rows, err := DB.Query("SELECT * FROM episodes WHERE pod_id = ?", podcastid)
+	rows, err := DB.Query(queryStr)
 
 	defer rows.Close()
 

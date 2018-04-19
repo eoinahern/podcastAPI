@@ -11,6 +11,20 @@ import (
 var Categories = []string{"arts", "comedy", "business", "technology", "health", "games", "music", "tv & film",
 	"religion & spirituality", "education", "kids & family", "news & politics", "science & medicine", "other", "sports & recreation", "science & medicine"}
 
+// PodcastPage : page data related to podcasts. could of made one struct if i had generics
+type PodcastPage struct {
+	Data     []Podcast `json:"data"`
+	Next     string    `json:"next"`
+	Previous string    `json:"previous"`
+}
+
+//EpisodePage page data for Episodes
+type EpisodePage struct {
+	Data     []Episode `json:"data"`
+	Next     string    `json:"next"`
+	Previous string    `json:"previous"`
+}
+
 //Config : this is a type used to configure DB, and transmit Singning key.
 // Inintially read in from a file
 type Config struct {
