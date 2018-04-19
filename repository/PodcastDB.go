@@ -46,9 +46,9 @@ func (DB *PodcastDB) GetAll(limit uint16, offset uint16, category string) []mode
 	var queryString string
 
 	if len(category) == 0 {
-		queryString = fmt.Sprintf("SELECT podcast_id, icon, name, category, episode_num, details from podcasts ORDER BY downloads DESC LIMIT %d OFFSET %d", limit, offset)
+		queryString = fmt.Sprintf("SELECT podcast_id, icon, name, category, downloads, episode_num, details from podcasts ORDER BY downloads DESC LIMIT %d OFFSET %d", limit, offset)
 	} else {
-		queryString = fmt.Sprintf("SELECT podcast_id, icon, name, category, episode_num, details from podcasts WHERE category = %s ORDER BY downloads DESC LIMIT %d OFFSET %d", category, limit, offset)
+		queryString = fmt.Sprintf("SELECT podcast_id, icon, name, category, downloads, episode_num, details from podcasts WHERE category = %s ORDER BY downloads DESC LIMIT %d OFFSET %d", category, limit, offset)
 	}
 
 	rows, err := DB.Query(queryString)
@@ -62,7 +62,7 @@ func (DB *PodcastDB) GetAll(limit uint16, offset uint16, category string) []mode
 
 		var securePodcast models.SecurePodcast
 		if err := rows.Scan(&securePodcast.PodcastID, &securePodcast.Icon,
-			&securePodcast.Name, &securePodcast.Category, &securePodcast.EpisodeNum, &securePodcast.Details); err != nil {
+			&securePodcast.Name, &securePodcast.Category, &securePodcast.Downloads, &securePodcast.EpisodeNum, &securePodcast.Details); err != nil {
 
 			log.Println(err)
 

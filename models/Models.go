@@ -92,7 +92,9 @@ type Podcast struct {
 type SecurePodcast struct {
 	PodcastID  uint      `json:"podcastid"`
 	Icon       string    `json:"icon"`
-	Name       string    `json:"name" `
+	Name       string    `json:"name"`
+	Category   string    `json:"category"`
+	Downloads  int       `json:"downloads"`
 	EpisodeNum int       `json:"episodenum"`
 	Details    string    `json:"details"`
 	Episodes   []Episode `json:"episodes"`

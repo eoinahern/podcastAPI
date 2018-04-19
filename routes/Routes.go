@@ -123,6 +123,7 @@ func (r *RegisterHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	r.MailHelper.SetBodyParams(&models.TemplateParams{User: user.UserName, Token: user.RegToken})
 	r.MailHelper.SetToID(user.UserName)
+	fmt.Println(user.RegToken)
 	_, err = r.MailHelper.SendMail()
 
 	if err != nil {
@@ -250,14 +251,12 @@ func (g *GetPodcastsHandler) ServeHTTP(w http.ResponseWriter, req *http.Request)
 		offset = 0
 	}
 
-	byParam := queryParams.Get("by")
-
-	// : TODO maybe a search by category also
-	if byParam == "" {
-		byParam = "downloads"
+	category := queryParams.Get("category")
+	if checkCategoryExists(category) == false {
+		category = ""
 	}
 
-	// param validation
+	// if category unknown of doesnt exist just return all
 
 	if offset%10 != 0 || limit%10 != 0 {
 		http.Error(w, "limit and offset must be mod 10", http.StatusBadRequest)
@@ -271,7 +270,7 @@ func (g *GetPodcastsHandler) ServeHTTP(w http.ResponseWriter, req *http.Request)
 
 	w.Header().Set("Content-Type", "application/json")
 
-	podcasts := g.PodcastDB.GetAll(limit, offset, byParam)
+	podcasts := g.PodcastDB.GetAll(limit, offset, category)
 	podcastsMarshaled, err := json.Marshal(podcasts)
 
 	if err != nil {
@@ -280,6 +279,18 @@ func (g *GetPodcastsHandler) ServeHTTP(w http.ResponseWriter, req *http.Request)
 	} else {
 		w.Write(podcastsMarshaled)
 	}
+}
+
+func checkCategoryExists(category string) bool {
+
+	for _, categoryType := range models.Categories {
+		if strings.Compare(category, categoryType) == 0 {
+			return true
+		}
+	}
+
+	return false
+
 }
 
 /**

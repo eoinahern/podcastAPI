@@ -15,6 +15,7 @@ import (
 	"github.com/eoinahern/podcastAPI/validation"
 
 	"github.com/eoinahern/podcastAPI/middleware"
+	"github.com/eoinahern/podcastAPI/mocks"
 	"github.com/eoinahern/podcastAPI/models"
 	"github.com/eoinahern/podcastAPI/repository"
 	"github.com/eoinahern/podcastAPI/routes"
@@ -110,8 +111,9 @@ func setUpDebug(router *mux.Router, debugDB *sql.DB) {
 	debugEpisodeDB = &repository.EpisodeDB{DB: debugDB}
 	debugPodcastDB = &repository.PodcastDB{DB: debugDB}
 	jwtTokenUtil := &util.JwtTokenUtil{SigningKey: "1234", DB: debugUserDB}
+	mockMailHelper := &mocks.MockMailRequest{}
 
-	router.Handle("/debug/register", &routes.RegisterHandler{EmailValidator: emailValidator, MailHelper: regMailHelper, DB: debugUserDB, PassEncryptUtil: passEncryptUtil}).Methods(http.MethodPost)
+	router.Handle("/debug/register", &routes.RegisterHandler{EmailValidator: emailValidator, MailHelper: mockMailHelper, DB: debugUserDB, PassEncryptUtil: passEncryptUtil}).Methods(http.MethodPost)
 	router.Handle("/debug/confirm", &routes.ConfirmRegistrationHandler{DB: debugUserDB}).Methods(http.MethodPost)
 	router.Handle("/debug/session", &routes.CreateSessionHandler{DB: debugUserDB, JwtTokenUtil: jwtTokenUtil, PassEncryptUtil: passEncryptUtil}).Methods(http.MethodPost)
 	router.Handle("/debug/podcasts", middleware.Adapt(&routes.GetPodcastsHandler{UserDB: debugUserDB, PodcastDB: debugPodcastDB}, middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodGet)
