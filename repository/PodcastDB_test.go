@@ -122,9 +122,9 @@ func TestCreatePodcast(t *testing.T) {
 	podcastDB, db, mock := setUpMockDB()
 	defer db.Close()
 
-	podcast := &models.Podcast{UserEmail: "eoin", Icon: "none", Name: "name", Location: "location/location", Details: "podcast about something"}
+	podcast := &models.Podcast{UserEmail: "eoin", Icon: "none", Name: "name", Category: "arts", Downloads: 20, Location: "location/location", Details: "podcast about something"}
 	mock.ExpectPrepare("INSERT INTO podcasts")
-	mock.ExpectExec("INSERT INTO podcasts").WithArgs("eoin", "none", "name", "location/location", "podcast about something").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("INSERT INTO podcasts").WithArgs("eoin", "none", "name", "arts", 20, "location/location", "podcast about something").WillReturnResult(sqlmock.NewResult(1, 1))
 
 	errorCreate := podcastDB.CreatePodcast(podcast)
 
