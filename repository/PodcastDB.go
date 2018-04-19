@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/eoinahern/podcastAPI/models"
@@ -38,11 +39,19 @@ func (DB *PodcastDB) CountRows() int {
 
 //GetAll : get all podcasts. not episodes just a podcast name!!
 //TODO: need to page. potentially filter by category etc here!! popularity etc
-func (DB *PodcastDB) GetAll(limit uint16, offset uint16, by string) []models.SecurePodcast {
+func (DB *PodcastDB) GetAll(limit uint16, offset uint16, category string) []models.SecurePodcast {
 
 	var podcasts []models.SecurePodcast
 
-	rows, err := DB.Query("SELECT podcast_id, icon, name, episode_num, details from podcasts")
+	var queryString string
+
+	if len(category) == 0 {
+		queryString = fmt.Sprintf("SELECT podcast_id, icon, name, category, episode_num, details from podcasts ORDER BY downloads DESC LIMIT %d OFFSET %d", limit, offset)
+	} else {
+		queryString = fmt.Sprintf("SELECT podcast_id, icon, name, category, episode_num, details from podcasts WHERE category = %s ORDER BY downloads DESC LIMIT %d OFFSET %d", category, limit, offset)
+	}
+
+	rows, err := DB.Query(queryString)
 	defer rows.Close()
 
 	if err != nil {
@@ -53,12 +62,11 @@ func (DB *PodcastDB) GetAll(limit uint16, offset uint16, by string) []models.Sec
 
 		var securePodcast models.SecurePodcast
 		if err := rows.Scan(&securePodcast.PodcastID, &securePodcast.Icon,
-			&securePodcast.Name, &securePodcast.EpisodeNum, &securePodcast.Details); err != nil {
+			&securePodcast.Name, &securePodcast.Category, &securePodcast.EpisodeNum, &securePodcast.Details); err != nil {
 
 			log.Println(err)
 
 		} else {
-
 			podcasts = append(podcasts, securePodcast)
 		}
 
@@ -131,7 +139,7 @@ func (DB *PodcastDB) UpdatePodcastNumEpisodes(id uint) {
 //CreatePodcast : save podcast to database
 func (DB *PodcastDB) CreatePodcast(podcast *models.Podcast) error {
 
-	stmt, err := DB.Prepare("INSERT INTO podcasts(user_email, icon, name, category, downloads, location, details) VALUES(?,?,?,?,?,?,?)")
+	stmt, err := DB.Prepare("INSERT INTO podcasts(user_email, icon, name, category, downloads,  location, details) VALUES(?,?,?,?,?,?,?)")
 
 	if err != nil {
 		log.Println(err)

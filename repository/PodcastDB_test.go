@@ -12,7 +12,7 @@ import (
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 )
 
-var columns = []string{"podcast_id", "icon", "name", "episode_num", "details"}
+var columns = []string{"podcast_id", "icon", "name", "category", "episode_num", "details"}
 var columnsLocation = []string{"podcast_id", "user_email", "icon", "name", "location", "episode_num", "details"}
 
 //setUpMockDB : helper method
@@ -36,10 +36,10 @@ func TestGetAll(t *testing.T) {
 	podcastDB, db, mock := setUpMockDB()
 	defer db.Close()
 
-	rows := sqlmock.NewRows(columns).AddRow(1, "icon", "podcast1", 1, "details about").AddRow(2, "icon.jpeg", "yayrus", 5, "mo details")
+	rows := sqlmock.NewRows(columns).AddRow(1, "icon", "podcast1", "arts", 1, "details about").AddRow(2, "icon.jpeg", "yayrus", "arts", 5, "mo details")
 	mock.ExpectQuery("SELECT podcast_id, icon, name").WillReturnRows(rows)
 
-	podcasts := podcastDB.GetAll(20, 0, "popular")
+	podcasts := podcastDB.GetAll(20, 0, "arts")
 
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("err %s", err)
@@ -48,6 +48,12 @@ func TestGetAll(t *testing.T) {
 	assert.Equal(t, 2, len(podcasts))
 	assert.Equal(t, "podcast1", podcasts[0].Name)
 	assert.Equal(t, "icon.jpeg", podcasts[1].Icon)
+
+	rows = sqlmock.NewRows(columns)
+	mock.ExpectQuery("SELECT podcast_id, icon, name").WillReturnRows(rows)
+	podcasts = podcastDB.GetAll(50, 20, "")
+
+	assert.Equal(t, 0, len(podcasts))
 
 }
 
@@ -122,9 +128,9 @@ func TestCreatePodcast(t *testing.T) {
 	podcastDB, db, mock := setUpMockDB()
 	defer db.Close()
 
-	podcast := &models.Podcast{UserEmail: "eoin", Icon: "none", Name: "name", Category: "arts", Downloads: 20, Location: "location/location", Details: "podcast about something"}
+	podcast := &models.Podcast{UserEmail: "eoin", Icon: "none", Name: "name", Category: "arts", Downloads: 0, Location: "location/location", Details: "podcast about something"}
 	mock.ExpectPrepare("INSERT INTO podcasts")
-	mock.ExpectExec("INSERT INTO podcasts").WithArgs("eoin", "none", "name", "arts", 20, "location/location", "podcast about something").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("INSERT INTO podcasts").WithArgs("eoin", "none", "name", "arts", 0, "location/location", "podcast about something").WillReturnResult(sqlmock.NewResult(1, 1))
 
 	errorCreate := podcastDB.CreatePodcast(podcast)
 
