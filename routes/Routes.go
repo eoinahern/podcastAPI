@@ -238,7 +238,7 @@ func (g *GetPodcastsHandler) ServeHTTP(w http.ResponseWriter, req *http.Request)
 	fmt.Println(req.URL.RequestURI()) //need this to constuct next and previous links in Page object
 
 	i, _ := strconv.ParseUint(queryParams.Get("limit"), 10, 16)
-	limit := uint16(i) // a bit verbose to get a uint16 as strconv always returns uint64
+	limit := uint16(i)
 
 	i, _ = strconv.ParseUint(queryParams.Get("offset"), 10, 16)
 	offset := uint16(i)
@@ -294,9 +294,14 @@ func (g *GetEpisodesHandler) ServeHTTP(w http.ResponseWriter, req *http.Request)
 		return
 	}
 
+	totalRows := g.EpisodeDB.CountRowsByID(podcastid)
+	page := util.CreateEpisodePage(req.URL.RequestURI(), int(limit), int(offset), totalRows)
+
 	episodes := g.EpisodeDB.GetAllEpisodes(podcastid, limit, offset)
+	page.Data = episodes
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(&episodes)
+	json.NewEncoder(w).Encode(page)
 }
 
 func (g *DownloadEpisodeHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {

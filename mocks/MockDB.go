@@ -136,6 +136,10 @@ func (DB *MockEpisodeDB) CountRows() int {
 	return 1
 }
 
+func CountRowsByID(podID int) int {
+	return 90
+}
+
 func (DB *MockEpisodeDB) GetAllEpisodes(podcastid int, limit uint16, offset uint16) []models.Episode {
 
 	return []models.Episode{

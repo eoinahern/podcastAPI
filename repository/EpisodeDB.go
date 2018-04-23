@@ -13,6 +13,7 @@ type EpisodeDBInt interface {
 	CountRows() int
 	GetAllEpisodes(podcastid int, limit uint16, offset uint16) []models.Episode
 	AddEpisode(episode models.Episode) error
+	CountRowsByID(id int) int
 	GetSingleEpisode(podcastID uint, episodeID uint) models.Episode
 	GetLastEpisode() models.Episode
 }
@@ -34,6 +35,20 @@ func (DB *EpisodeDB) CountRows() int {
 	}
 
 	return 0
+}
+
+func (DB *EpisodeDB) CountRowsByID(id int) int {
+
+	var count int
+	row := DB.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM episodes WHERE pod_id = '%d'", id))
+	err := row.Scan(&count)
+
+	if err == nil {
+		return count
+	}
+
+	return 0
+
 }
 
 //GetAllEpisodes : get all episodes associated with specific podcast
