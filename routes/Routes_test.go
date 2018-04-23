@@ -167,7 +167,7 @@ func TestGetEPisode(t *testing.T) {
 	getEpisodeHandler := &GetEpisodesHandler{UserDB: &mocks.MockUserDB{}, EpisodeDB: &mocks.MockEpisodeDB{}}
 
 	respWriter := httptest.NewRecorder()
-	request, err := http.NewRequest(http.MethodPost, "localhost?podcastid=1", nil)
+	request, err := http.NewRequest(http.MethodPost, "localhost?podcastid=1&limit=10&offset=0", nil)
 
 	if err != nil {
 		t.Error(err)

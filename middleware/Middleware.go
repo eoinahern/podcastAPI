@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/eoinahern/podcastAPI/models"
@@ -50,6 +51,43 @@ func AuthMiddlewareInit(jwtTokenUtil *util.JwtTokenUtil) Adapter {
 
 		})
 	}
+}
+
+//PagingParamsValidate check paging values passed in request
+func PagingParamsValidate(max uint16) Adapter {
+	return func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+
+			queryParams := req.URL.Query()
+
+			i, err := strconv.ParseUint(queryParams.Get("limit"), 10, 16)
+
+			if err != nil {
+				incorrectParamsError(w)
+				return
+			}
+
+			limit := uint16(i)
+			i, err = strconv.ParseUint(queryParams.Get("offset"), 10, 16)
+
+			if err != nil {
+				incorrectParamsError(w)
+				return
+			}
+			offset := uint16(i)
+
+			if limit > max || offset%10 != 0 || limit%10 != 0 {
+				incorrectParamsError(w)
+				return
+			}
+
+			h.ServeHTTP(w, req)
+		})
+	}
+}
+
+func incorrectParamsError(resp http.ResponseWriter) {
+	http.Error(resp, "incorrect params", http.StatusBadRequest)
 }
 
 func getTokenFromHeader(req *http.Request) string {

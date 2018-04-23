@@ -123,7 +123,6 @@ func (r *RegisterHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	r.MailHelper.SetBodyParams(&models.TemplateParams{User: user.UserName, Token: user.RegToken})
 	r.MailHelper.SetToID(user.UserName)
-	fmt.Println(user.RegToken)
 	_, err = r.MailHelper.SendMail()
 
 	if err != nil {
@@ -236,36 +235,17 @@ func (c *CreatePodcastHandler) ServeHTTP(w http.ResponseWriter, req *http.Reques
 func (g *GetPodcastsHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	queryParams := req.URL.Query()
+	fmt.Println(req.URL.RequestURI()) //need this to constuct next and previous links in Page object
 
-	i, err := strconv.ParseUint(queryParams.Get("limit"), 10, 16)
+	i, _ := strconv.ParseUint(queryParams.Get("limit"), 10, 16)
 	limit := uint16(i) // a bit verbose to get a uint16 as strconv always returns uint64
 
-	if err != nil {
-		limit = 20
-	}
-
-	i, err = strconv.ParseUint(queryParams.Get("offset"), 10, 16)
+	i, _ = strconv.ParseUint(queryParams.Get("offset"), 10, 16)
 	offset := uint16(i)
-
-	if err != nil {
-		offset = 0
-	}
 
 	category := queryParams.Get("category")
 	if checkCategoryExists(category) == false {
 		category = ""
-	}
-
-	// if category unknown of doesnt exist just return all
-
-	if offset%10 != 0 || limit%10 != 0 {
-		http.Error(w, "limit and offset must be mod 10", http.StatusBadRequest)
-		return
-	}
-
-	if limit > 50 {
-		http.Error(w, "limit can be greateer than 50", http.StatusBadRequest)
-		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -303,19 +283,11 @@ func (g *GetEpisodesHandler) ServeHTTP(w http.ResponseWriter, req *http.Request)
 	reqParams := req.URL.Query()
 	podcastid, err := strconv.Atoi(reqParams.Get("podcastid"))
 
-	i, err := strconv.ParseUint(reqParams.Get("limit"), 10, 16)
+	i, _ := strconv.ParseUint(reqParams.Get("limit"), 10, 16)
 	limit := uint16(i)
 
-	if err != nil {
-		limit = 20
-	}
-
-	i, err = strconv.ParseUint(reqParams.Get("offset"), 10, 16)
+	i, _ = strconv.ParseUint(reqParams.Get("offset"), 10, 16)
 	offset := uint16(i)
-
-	if err != nil {
-		offset = 0
-	}
 
 	if err != nil {
 		http.Error(w, http.StatusText(22), http.StatusBadRequest)
