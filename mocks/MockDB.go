@@ -136,7 +136,7 @@ func (DB *MockEpisodeDB) CountRows() int {
 	return 1
 }
 
-func CountRowsByID(podID int) int {
+func (DB *MockEpisodeDB) CountRowsByID(podID int) int {
 	return 90
 }
 

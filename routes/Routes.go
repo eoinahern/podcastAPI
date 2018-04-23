@@ -51,6 +51,10 @@ type GetPodcastsHandler struct {
 	PodcastDB repository.PodcastDBInt
 }
 
+//GetPodcastBySearchTerm : use a search term to find a podcast
+type GetPodcastBySearchTerm struct {
+}
+
 //GetEpisodesHandler : all episodes associated with specific podcast
 type GetEpisodesHandler struct {
 	UserDB    repository.UserDBInt
@@ -126,7 +130,6 @@ func (r *RegisterHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	_, err = r.MailHelper.SendMail()
 
 	if err != nil {
-		log.Println("error sending automated mail")
 		log.Println(err)
 		http.Error(w, http.StatusText(51), http.StatusInternalServerError)
 		return
@@ -295,13 +298,17 @@ func (g *GetEpisodesHandler) ServeHTTP(w http.ResponseWriter, req *http.Request)
 	}
 
 	totalRows := g.EpisodeDB.CountRowsByID(podcastid)
-	page := util.CreateEpisodePage(req.URL.RequestURI(), int(limit), int(offset), totalRows)
+	page := util.CreateEpisodePage(req, podcastid, int(limit), int(offset), totalRows)
 
 	episodes := g.EpisodeDB.GetAllEpisodes(podcastid, limit, offset)
 	page.Data = episodes
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(page)
+}
+
+func (g *GetPodcastBySearchTerm) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+
 }
 
 func (g *DownloadEpisodeHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {

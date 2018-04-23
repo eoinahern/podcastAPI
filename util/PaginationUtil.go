@@ -2,53 +2,61 @@ package util
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/eoinahern/podcastAPI/models"
 )
 
 const limitStr string = "limit="
 const offsetStr string = "offset="
+const podIDStr string = "pod_id="
 
 // CreatePodcastPage estimating how ill construct the page object to return??
-func CreatePodcastPage(endpoint string, limit int, offset int, totalItems int) *models.PodcastPage {
+func CreatePodcastPage(endpoint *http.Request, limit int, offset int, totalItems int) *models.PodcastPage {
 
 	return &models.PodcastPage{Data: []models.Podcast{},
-		Next:     createNextURL(endpoint, limit, offset, totalItems),
-		Previous: createPreviousURL(endpoint, limit, offset)}
+		Next:     createNextURL(endpoint, 0, limit, offset, totalItems),
+		Previous: createPreviousURL(endpoint, 0, limit, offset)}
 }
 
-//CreateEpisodePage guesstimate TODO
-func CreateEpisodePage(endpoint string, limit int, offset int, totalItems int) *models.EpisodePage {
+// CreateEpisodePage used to create page data struct related to episodes
+func CreateEpisodePage(endpoint *http.Request, podid int, limit int, offset int, totalItems int) *models.EpisodePage {
 
 	return &models.EpisodePage{Data: []models.Episode{},
-		Next:     createNextURL(endpoint, limit, offset, totalItems),
-		Previous: createPreviousURL(endpoint, limit, offset)}
+		Next:     createNextURL(endpoint, podid, limit, offset, totalItems),
+		Previous: createPreviousURL(endpoint, podid, limit, offset)}
 }
 
-func createNextURL(endpoint string, limit int, offset int, totalItems int) string {
-
-	//we need total in db here???
-
-	var result string
+func createNextURL(endpoint *http.Request, podid int, limit int, offset int, totalItems int) string {
 
 	if (offset + limit) >= totalItems {
-		return result
+		return ""
 	}
 
-	result = fmt.Sprintf("%s?%s%d&%s%d", endpoint, limitStr, limit, offsetStr, offset+limit)
+	fmt.Println(totalItems)
+
+	return createURL(endpoint, podid, limit, offset+limit)
+}
+
+func createURL(endpoint *http.Request, podid int, limit int, newOffset int) string {
+
+	var result string
+
+	if podid == 0 {
+		result = fmt.Sprintf("%s%s?%s%d&%s%d", endpoint.URL.Host, endpoint.URL.Path, limitStr, limit, offsetStr, newOffset)
+	} else {
+		result = fmt.Sprintf("%s%s?%s%d&%s%d&%s%d", endpoint.URL.Host, endpoint.URL.Path, podIDStr, podid, limitStr, limit, offsetStr, newOffset)
+	}
 
 	return result
 }
 
-func createPreviousURL(endpoint string, limit int, offset int) string {
-
-	var result string
+func createPreviousURL(endpoint *http.Request, podid int, limit int, offset int) string {
 
 	if offset == 0 || offset-limit < 0 {
-		return result
+		return ""
 	}
 
-	result = fmt.Sprintf("%s?%s%d&%s%d", endpoint, limitStr, limit, offsetStr, offset-limit)
-	return result
+	return createURL(endpoint, podid, limit, offset-limit)
 
 }

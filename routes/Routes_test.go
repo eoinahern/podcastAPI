@@ -3,6 +3,7 @@ package routes
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -162,12 +163,12 @@ func TestCreatePodcast(t *testing.T) {
 
 }
 
-func TestGetEPisode(t *testing.T) {
+func TestGetEpisode(t *testing.T) {
 
 	getEpisodeHandler := &GetEpisodesHandler{UserDB: &mocks.MockUserDB{}, EpisodeDB: &mocks.MockEpisodeDB{}}
 
 	respWriter := httptest.NewRecorder()
-	request, err := http.NewRequest(http.MethodPost, "localhost?podcastid=1&limit=10&offset=0", nil)
+	request, err := http.NewRequest(http.MethodPost, "http://localhost/debug/episodes?podcastid=1&limit=10&offset=60", nil)
 
 	if err != nil {
 		t.Error(err)
@@ -175,10 +176,12 @@ func TestGetEPisode(t *testing.T) {
 
 	getEpisodeHandler.ServeHTTP(respWriter, request)
 
-	var episodes []models.Episode
-	json.NewDecoder(respWriter.Body).Decode(&episodes)
-	assert.Equal(t, uint(1), episodes[0].EpisodeID)
-	assert.Equal(t, uint(2), episodes[1].EpisodeID)
+	var page models.EpisodePage
+	json.NewDecoder(respWriter.Body).Decode(&page)
+
+	fmt.Println(page)
+	assert.Equal(t, uint(1), page.Data[0].EpisodeID)
+	assert.Equal(t, uint(2), page.Data[1].EpisodeID)
 
 	respWriter = httptest.NewRecorder()
 	request, _ = http.NewRequest(http.MethodPost, "localhost", nil)
