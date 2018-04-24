@@ -14,7 +14,7 @@ const podIDStr string = "pod_id="
 // CreatePodcastPage estimating how ill construct the page object to return??
 func CreatePodcastPage(endpoint *http.Request, limit int, offset int, totalItems int) *models.PodcastPage {
 
-	return &models.PodcastPage{Data: []models.Podcast{},
+	return &models.PodcastPage{Data: []models.SecurePodcast{},
 		Next:     createNextURL(endpoint, 0, limit, offset, totalItems),
 		Previous: createPreviousURL(endpoint, 0, limit, offset)}
 }
@@ -32,8 +32,6 @@ func createNextURL(endpoint *http.Request, podid int, limit int, offset int, tot
 	if (offset + limit) >= totalItems {
 		return ""
 	}
-
-	fmt.Println(totalItems)
 
 	return createURL(endpoint, podid, limit, offset+limit)
 }

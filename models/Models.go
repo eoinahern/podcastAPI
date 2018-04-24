@@ -13,9 +13,9 @@ var Categories = []string{"arts", "comedy", "business", "technology", "health", 
 
 // PodcastPage : page data related to podcasts. could of made one struct if i had generics
 type PodcastPage struct {
-	Data     []Podcast `json:"data"`
-	Next     string    `json:"next"`
-	Previous string    `json:"previous"`
+	Data     []SecurePodcast `json:"data"`
+	Next     string          `json:"next"`
+	Previous string          `json:"previous"`
 }
 
 //EpisodePage page data for Episodes
