@@ -63,7 +63,7 @@ func (DB *MockPodcastDB) CountRows() int {
 	return 1
 }
 
-func (DB *MockPodcastDB) GetAll() []models.SecurePodcast {
+func (DB *MockPodcastDB) GetAllPodcasts(limit uint16, offset uint16, by string) []models.SecurePodcast {
 	return getTestPodcasts()
 }
 
@@ -136,7 +136,11 @@ func (DB *MockEpisodeDB) CountRows() int {
 	return 1
 }
 
-func (DB *MockEpisodeDB) GetAllEpisodes(podcastid int) []models.Episode {
+func (DB *MockEpisodeDB) CountRowsByID(podID int) int {
+	return 90
+}
+
+func (DB *MockEpisodeDB) GetAllEpisodes(podcastid int, limit uint16, offset uint16) []models.Episode {
 
 	return []models.Episode{
 		{

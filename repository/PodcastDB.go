@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/eoinahern/podcastAPI/models"
@@ -10,7 +11,7 @@ import (
 //PodcastDBInt interface
 type PodcastDBInt interface {
 	CountRows() int
-	GetAll() []models.SecurePodcast
+	GetAllPodcasts(limit uint16, offset uint16, by string) []models.SecurePodcast
 	GetPodcast(username string, podcastname string) *models.Podcast
 	CheckPodcastCreated(podID uint, podname string) models.Podcast
 	CreatePodcast(podcast *models.Podcast) error
@@ -38,27 +39,35 @@ func (DB *PodcastDB) CountRows() int {
 
 //GetAll : get all podcasts. not episodes just a podcast name!!
 //TODO: need to page. potentially filter by category etc here!! popularity etc
-func (DB *PodcastDB) GetAll() []models.SecurePodcast {
+func (DB *PodcastDB) GetAllPodcasts(limit uint16, offset uint16, category string) []models.SecurePodcast {
 
 	var podcasts []models.SecurePodcast
 
-	rows, err := DB.Query("SELECT podcast_id, icon, name, episode_num, details from podcasts")
+	var queryString string
+
+	if len(category) == 0 {
+		queryString = fmt.Sprintf("SELECT podcast_id, icon, name, category, downloads, episode_num, details from podcasts ORDER BY downloads DESC LIMIT %d OFFSET %d", limit, offset)
+	} else {
+		queryString = fmt.Sprintf("SELECT podcast_id, icon, name, category, downloads, episode_num, details from podcasts WHERE category = '%s' ORDER BY downloads DESC LIMIT %d OFFSET %d", category, limit, offset)
+	}
+
+	rows, err := DB.Query(queryString)
 	defer rows.Close()
 
 	if err != nil {
 		log.Println(err)
+		return podcasts
 	}
 
 	for rows.Next() {
 
 		var securePodcast models.SecurePodcast
 		if err := rows.Scan(&securePodcast.PodcastID, &securePodcast.Icon,
-			&securePodcast.Name, &securePodcast.EpisodeNum, &securePodcast.Details); err != nil {
+			&securePodcast.Name, &securePodcast.Category, &securePodcast.Downloads, &securePodcast.EpisodeNum, &securePodcast.Details); err != nil {
 
 			log.Println(err)
 
 		} else {
-
 			podcasts = append(podcasts, securePodcast)
 		}
 
@@ -131,14 +140,14 @@ func (DB *PodcastDB) UpdatePodcastNumEpisodes(id uint) {
 //CreatePodcast : save podcast to database
 func (DB *PodcastDB) CreatePodcast(podcast *models.Podcast) error {
 
-	stmt, err := DB.Prepare("INSERT INTO podcasts(user_email, icon, name, location, details) VALUES(?,?,?,?,?)")
+	stmt, err := DB.Prepare("INSERT INTO podcasts(user_email, icon, name, category, downloads,  location, details) VALUES(?,?,?,?,?,?,?)")
 
 	if err != nil {
 		log.Println(err)
 	}
 
 	defer stmt.Close()
-	_, err = stmt.Exec(podcast.UserEmail, podcast.Icon, podcast.Name, podcast.Location, podcast.Details)
+	_, err = stmt.Exec(podcast.UserEmail, podcast.Icon, podcast.Name, podcast.Category, podcast.Downloads, podcast.Location, podcast.Details)
 
 	return err
 }

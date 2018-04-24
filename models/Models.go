@@ -7,6 +7,24 @@ import (
 	"os"
 )
 
+//Categories categoy of podcast
+var Categories = []string{"arts", "comedy", "business", "technology", "health", "games", "music", "tv & film",
+	"religion & spirituality", "education", "kids & family", "news & politics", "science & medicine", "other", "sports & recreation", "science & medicine"}
+
+// PodcastPage : page data related to podcasts. could of made one struct if i had generics
+type PodcastPage struct {
+	Data     []SecurePodcast `json:"data"`
+	Next     string          `json:"next"`
+	Previous string          `json:"previous"`
+}
+
+//EpisodePage page data for Episodes
+type EpisodePage struct {
+	Data     []Episode `json:"data"`
+	Next     string    `json:"next"`
+	Previous string    `json:"previous"`
+}
+
 //Config : this is a type used to configure DB, and transmit Singning key.
 // Inintially read in from a file
 type Config struct {
@@ -76,6 +94,8 @@ type Podcast struct {
 	UserEmail  string    `json:"useremail"`
 	Icon       string    `json:"icon"`
 	Name       string    `json:"name"`
+	Category   string    `json:"category"`
+	Downloads  int64     `json:"downloads"`
 	Location   string    `json:"location"`
 	EpisodeNum int       `json:"episodenum"`
 	Details    string    `json:"details"`
@@ -86,7 +106,9 @@ type Podcast struct {
 type SecurePodcast struct {
 	PodcastID  uint      `json:"podcastid"`
 	Icon       string    `json:"icon"`
-	Name       string    `json:"name" `
+	Name       string    `json:"name"`
+	Category   string    `json:"category"`
+	Downloads  int       `json:"downloads"`
 	EpisodeNum int       `json:"episodenum"`
 	Details    string    `json:"details"`
 	Episodes   []Episode `json:"episodes"`

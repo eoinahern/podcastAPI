@@ -15,6 +15,7 @@ import (
 	"github.com/eoinahern/podcastAPI/validation"
 
 	"github.com/eoinahern/podcastAPI/middleware"
+	"github.com/eoinahern/podcastAPI/mocks"
 	"github.com/eoinahern/podcastAPI/models"
 	"github.com/eoinahern/podcastAPI/repository"
 	"github.com/eoinahern/podcastAPI/routes"
@@ -96,8 +97,8 @@ func setUpProduction(router *mux.Router, prodDB *sql.DB, signingKey string) {
 	router.Handle("/register", &routes.RegisterHandler{EmailValidator: emailValidator, MailHelper: regMailHelper, DB: userDB, PassEncryptUtil: passEncryptUtil}).Methods(http.MethodPost)
 	router.Handle("/confirm", &routes.ConfirmRegistrationHandler{DB: userDB}).Methods(http.MethodPost)
 	router.Handle("/session", &routes.CreateSessionHandler{DB: userDB, JwtTokenUtil: jwtTokenUtil, PassEncryptUtil: passEncryptUtil}).Methods(http.MethodPost)
-	router.Handle("/podcasts", middleware.Adapt(&routes.GetPodcastsHandler{UserDB: userDB, PodcastDB: podcastDB}, middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodGet)
-	router.Handle("/episodes", middleware.Adapt(&routes.GetEpisodesHandler{UserDB: userDB, EpisodeDB: episodeDB}, middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodGet)
+	router.Handle("/podcasts", middleware.Adapt(&routes.GetPodcastsHandler{UserDB: userDB, PodcastDB: podcastDB}, middleware.PagingParamsValidate(50), middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodGet)
+	router.Handle("/episodes", middleware.Adapt(&routes.GetEpisodesHandler{UserDB: userDB, EpisodeDB: episodeDB}, middleware.PagingParamsValidate(100), middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodGet)
 	router.Handle("/episodes/{podcastid}/{podcastname}/{podcastfilename}", middleware.Adapt(&routes.DownloadEpisodeHandler{EpisodeDB: episodeDB, BaseLocation: podcastFiles}, middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodGet)
 	router.Handle("/podcasts", middleware.Adapt(&routes.CreatePodcastHandler{PodcastDB: podcastDB, FileHelper: fileHelperUtil, BaseLocation: podcastFiles}, middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodPost)
 	router.Handle("/episodes", middleware.Adapt(&routes.UploadEpisodeHandler{UserDB: userDB, PodcastDB: podcastDB, EpisodeDB: episodeDB}, middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodPost)
@@ -110,12 +111,13 @@ func setUpDebug(router *mux.Router, debugDB *sql.DB) {
 	debugEpisodeDB = &repository.EpisodeDB{DB: debugDB}
 	debugPodcastDB = &repository.PodcastDB{DB: debugDB}
 	jwtTokenUtil := &util.JwtTokenUtil{SigningKey: "1234", DB: debugUserDB}
+	mockMailHelper := &mocks.MockMailRequest{}
 
-	router.Handle("/debug/register", &routes.RegisterHandler{EmailValidator: emailValidator, MailHelper: regMailHelper, DB: debugUserDB, PassEncryptUtil: passEncryptUtil}).Methods(http.MethodPost)
+	router.Handle("/debug/register", &routes.RegisterHandler{EmailValidator: emailValidator, MailHelper: mockMailHelper, DB: debugUserDB, PassEncryptUtil: passEncryptUtil}).Methods(http.MethodPost)
 	router.Handle("/debug/confirm", &routes.ConfirmRegistrationHandler{DB: debugUserDB}).Methods(http.MethodPost)
 	router.Handle("/debug/session", &routes.CreateSessionHandler{DB: debugUserDB, JwtTokenUtil: jwtTokenUtil, PassEncryptUtil: passEncryptUtil}).Methods(http.MethodPost)
-	router.Handle("/debug/podcasts", middleware.Adapt(&routes.GetPodcastsHandler{UserDB: debugUserDB, PodcastDB: debugPodcastDB}, middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodGet)
-	router.Handle("/debug/episodes", middleware.Adapt(&routes.GetEpisodesHandler{UserDB: debugUserDB, EpisodeDB: debugEpisodeDB}, middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodGet)
+	router.Handle("/debug/podcasts", middleware.Adapt(&routes.GetPodcastsHandler{UserDB: debugUserDB, PodcastDB: debugPodcastDB}, middleware.PagingParamsValidate(50), middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodGet)
+	router.Handle("/debug/episodes", middleware.Adapt(&routes.GetEpisodesHandler{UserDB: debugUserDB, EpisodeDB: debugEpisodeDB}, middleware.PagingParamsValidate(100), middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodGet)
 	router.Handle("/debug/episodes/{podcastid}/{podcastname}/{podcastfilename}", middleware.Adapt(&routes.DownloadEpisodeHandler{EpisodeDB: debugEpisodeDB, BaseLocation: debugPodcastFiles}, middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodGet)
 	router.Handle("/debug/podcasts", middleware.Adapt(&routes.CreatePodcastHandler{PodcastDB: debugPodcastDB, FileHelper: fileHelperUtil, BaseLocation: debugPodcastFiles}, middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodPost)
 	router.Handle("/debug/episodes", middleware.Adapt(&routes.UploadEpisodeHandler{UserDB: debugUserDB, PodcastDB: debugPodcastDB, EpisodeDB: debugEpisodeDB}, middleware.AuthMiddlewareInit(jwtTokenUtil))).Methods(http.MethodPost)

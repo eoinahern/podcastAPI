@@ -51,6 +51,10 @@ type GetPodcastsHandler struct {
 	PodcastDB repository.PodcastDBInt
 }
 
+//GetPodcastBySearchTerm : use a search term to find a podcast
+type GetPodcastBySearchTerm struct {
+}
+
 //GetEpisodesHandler : all episodes associated with specific podcast
 type GetEpisodesHandler struct {
 	UserDB    repository.UserDBInt
@@ -126,7 +130,6 @@ func (r *RegisterHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	_, err = r.MailHelper.SendMail()
 
 	if err != nil {
-		log.Println("error sending automated mail")
 		log.Println(err)
 		http.Error(w, http.StatusText(51), http.StatusInternalServerError)
 		return
@@ -234,17 +237,41 @@ func (c *CreatePodcastHandler) ServeHTTP(w http.ResponseWriter, req *http.Reques
 
 func (g *GetPodcastsHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
-	w.Header().Set("Content-Type", "application/json")
+	queryParams := req.URL.Query()
 
-	podcasts := g.PodcastDB.GetAll()
-	podcastsMarshaled, err := json.Marshal(podcasts)
+	i, _ := strconv.ParseUint(queryParams.Get("limit"), 10, 16)
+	limit := uint16(i)
 
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(internalErr)
-	} else {
-		w.Write(podcastsMarshaled)
+	fmt.Println(limit)
+
+	i, _ = strconv.ParseUint(queryParams.Get("offset"), 10, 16)
+	offset := uint16(i)
+
+	category := queryParams.Get("category")
+	if checkCategoryExists(category) == false {
+		category = ""
 	}
+
+	podcasts := g.PodcastDB.GetAllPodcasts(limit, offset, category)
+	//totalRows := g.PodcastDB.CountRows()
+	podcastPage := util.CreatePodcastPage(req, int(limit), int(offset), 100)
+	podcastPage.Data = podcasts
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(podcastPage)
+
+}
+
+func checkCategoryExists(category string) bool {
+
+	for _, categoryType := range models.Categories {
+		if strings.Compare(category, categoryType) == 0 {
+			return true
+		}
+	}
+
+	return false
+
 }
 
 /**
@@ -254,16 +281,32 @@ func (g *GetPodcastsHandler) ServeHTTP(w http.ResponseWriter, req *http.Request)
 
 func (g *GetEpisodesHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
-	podcastid, err := strconv.Atoi(req.URL.Query().Get("podcastid"))
+	reqParams := req.URL.Query()
+	podcastid, err := strconv.Atoi(reqParams.Get("podcastid"))
+
+	i, _ := strconv.ParseUint(reqParams.Get("limit"), 10, 16)
+	limit := uint16(i)
+
+	i, _ = strconv.ParseUint(reqParams.Get("offset"), 10, 16)
+	offset := uint16(i)
 
 	if err != nil {
 		http.Error(w, http.StatusText(22), http.StatusBadRequest)
 		return
 	}
 
-	episodes := g.EpisodeDB.GetAllEpisodes(podcastid)
+	totalRows := g.EpisodeDB.CountRowsByID(podcastid)
+	page := util.CreateEpisodePage(req, podcastid, int(limit), int(offset), totalRows)
+
+	episodes := g.EpisodeDB.GetAllEpisodes(podcastid, limit, offset)
+	page.Data = episodes
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(&episodes)
+	json.NewEncoder(w).Encode(page)
+}
+
+func (g *GetPodcastBySearchTerm) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+
 }
 
 func (g *DownloadEpisodeHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {

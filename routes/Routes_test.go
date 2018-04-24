@@ -103,7 +103,7 @@ func TestGetPodcasts(t *testing.T) {
 
 	getPodcastsHandler := &GetPodcastsHandler{UserDB: &mocks.MockUserDB{}, PodcastDB: &mocks.MockPodcastDB{}}
 
-	request, err := http.NewRequest(http.MethodGet, host, nil)
+	request, err := http.NewRequest(http.MethodGet, "http://localhost/debug/podcasts?limit=20&offset=0", nil)
 	respWriter := httptest.NewRecorder()
 
 	if err != nil {
@@ -112,12 +112,12 @@ func TestGetPodcasts(t *testing.T) {
 
 	getPodcastsHandler.ServeHTTP(respWriter, request)
 
-	var podcasts []models.SecurePodcast
-	json.NewDecoder(respWriter.Body).Decode(&podcasts)
+	var podcastsPage *models.PodcastPage
+	json.NewDecoder(respWriter.Body).Decode(&podcastsPage)
 
-	assert.Equal(t, 2, len(podcasts))
-	assert.Equal(t, 2, podcasts[0].EpisodeNum)
-	assert.Equal(t, 2, podcasts[1].EpisodeNum)
+	assert.Equal(t, 2, len(podcastsPage.Data))
+	assert.Equal(t, 2, podcastsPage.Data[0].EpisodeNum)
+	assert.Equal(t, 2, podcastsPage.Data[1].EpisodeNum)
 
 }
 
@@ -162,12 +162,12 @@ func TestCreatePodcast(t *testing.T) {
 
 }
 
-func TestGetEPisode(t *testing.T) {
+func TestGetEpisode(t *testing.T) {
 
 	getEpisodeHandler := &GetEpisodesHandler{UserDB: &mocks.MockUserDB{}, EpisodeDB: &mocks.MockEpisodeDB{}}
 
 	respWriter := httptest.NewRecorder()
-	request, err := http.NewRequest(http.MethodPost, "localhost?podcastid=1", nil)
+	request, err := http.NewRequest(http.MethodPost, "http://localhost/debug/episodes?podcastid=1&limit=10&offset=60", nil)
 
 	if err != nil {
 		t.Error(err)
@@ -175,10 +175,11 @@ func TestGetEPisode(t *testing.T) {
 
 	getEpisodeHandler.ServeHTTP(respWriter, request)
 
-	var episodes []models.Episode
-	json.NewDecoder(respWriter.Body).Decode(&episodes)
-	assert.Equal(t, uint(1), episodes[0].EpisodeID)
-	assert.Equal(t, uint(2), episodes[1].EpisodeID)
+	var page models.EpisodePage
+	json.NewDecoder(respWriter.Body).Decode(&page)
+
+	assert.Equal(t, uint(1), page.Data[0].EpisodeID)
+	assert.Equal(t, uint(2), page.Data[1].EpisodeID)
 
 	respWriter = httptest.NewRecorder()
 	request, _ = http.NewRequest(http.MethodPost, "localhost", nil)

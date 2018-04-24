@@ -11,8 +11,9 @@ import (
 //EpisodeDBInt interface
 type EpisodeDBInt interface {
 	CountRows() int
-	GetAllEpisodes(podcastid int) []models.Episode
+	GetAllEpisodes(podcastid int, limit uint16, offset uint16) []models.Episode
 	AddEpisode(episode models.Episode) error
+	CountRowsByID(id int) int
 	GetSingleEpisode(podcastID uint, episodeID uint) models.Episode
 	GetLastEpisode() models.Episode
 }
@@ -36,17 +37,33 @@ func (DB *EpisodeDB) CountRows() int {
 	return 0
 }
 
+func (DB *EpisodeDB) CountRowsByID(id int) int {
+
+	var count int
+	row := DB.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM episodes WHERE pod_id = '%d'", id))
+	err := row.Scan(&count)
+
+	if err == nil {
+		return count
+	}
+
+	return 0
+
+}
+
 //GetAllEpisodes : get all episodes associated with specific podcast
-func (DB *EpisodeDB) GetAllEpisodes(podcastid int) []models.Episode {
+func (DB *EpisodeDB) GetAllEpisodes(podcastid int, limit uint16, offset uint16) []models.Episode {
 
+	queryStr := fmt.Sprintf("SELECT * FROM episodes WHERE pod_id = '%d' ORDER BY created DESC LIMIT %d OFFSET %d", podcastid, limit, offset)
 	var episodes []models.Episode
-	rows, err := DB.Query("SELECT * FROM episodes WHERE pod_id = ?", podcastid)
-
-	defer rows.Close()
+	rows, err := DB.Query(queryStr)
 
 	if err != nil {
 		log.Println(err)
+		return episodes
 	}
+
+	defer rows.Close()
 
 	for rows.Next() {
 		var episode models.Episode
@@ -73,18 +90,13 @@ func (DB *EpisodeDB) AddEpisode(episode models.Episode) error {
 		log.Println(err)
 	}
 
-	res, err := stmt.Exec(episode.PodID, episode.Created, episode.Updated, episode.URL, episode.Downloads, episode.Blurb)
+	_, err = stmt.Exec(episode.PodID, episode.Created, episode.Updated, episode.URL, episode.Downloads, episode.Blurb)
 
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
 		return err
 	}
-
-	insertID, _ := res.LastInsertId()
-	rowsAffected, _ := res.RowsAffected()
-	fmt.Println(fmt.Sprintf("last insert id :  %d ", insertID))
-	fmt.Println(fmt.Sprintf("rows affected:  %d ", rowsAffected))
 
 	return err
 
