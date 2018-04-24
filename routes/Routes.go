@@ -252,7 +252,7 @@ func (g *GetPodcastsHandler) ServeHTTP(w http.ResponseWriter, req *http.Request)
 		category = ""
 	}
 
-	podcasts := g.PodcastDB.GetAll(limit, offset, category)
+	podcasts := g.PodcastDB.GetAllPodcasts(limit, offset, category)
 	//totalRows := g.PodcastDB.CountRows()
 	podcastPage := util.CreatePodcastPage(req, int(limit), int(offset), 100)
 	podcastPage.Data = podcasts

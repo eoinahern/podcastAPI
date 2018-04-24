@@ -12,7 +12,7 @@ import (
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 )
 
-var columns = []string{"podcast_id", "icon", "name", "category", "episode_num", "details"}
+var columns = []string{"podcast_id", "icon", "name", "category", "downloads", "episode_num", "details"}
 var columnsLocation = []string{"podcast_id", "user_email", "icon", "name", "location", "episode_num", "details"}
 
 //setUpMockDB : helper method
@@ -30,16 +30,16 @@ func setUpMockDB() (PodcastDB, *sql.DB, sqlmock.Sqlmock) {
 
 }
 
-func TestGetAll(t *testing.T) {
+func TestGetAllPodcasts(t *testing.T) {
 	t.Parallel()
 
 	podcastDB, db, mock := setUpMockDB()
 	defer db.Close()
 
-	rows := sqlmock.NewRows(columns).AddRow(1, "icon", "podcast1", "arts", 1, "details about").AddRow(2, "icon.jpeg", "yayrus", "arts", 5, "mo details")
+	rows := sqlmock.NewRows(columns).AddRow(1, "icon", "podcast1", "arts", 0, 1, "details about").AddRow(2, "icon.jpeg", "yayrus", "arts", 0, 5, "mo details")
 	mock.ExpectQuery("SELECT podcast_id, icon, name").WillReturnRows(rows)
 
-	podcasts := podcastDB.GetAll(20, 0, "arts")
+	podcasts := podcastDB.GetAllPodcasts(20, 0, "arts")
 
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("err %s", err)
@@ -51,7 +51,7 @@ func TestGetAll(t *testing.T) {
 
 	rows = sqlmock.NewRows(columns)
 	mock.ExpectQuery("SELECT podcast_id, icon, name").WillReturnRows(rows)
-	podcasts = podcastDB.GetAll(50, 20, "")
+	podcasts = podcastDB.GetAllPodcasts(50, 20, "")
 
 	assert.Equal(t, 0, len(podcasts))
 

@@ -11,7 +11,7 @@ import (
 //PodcastDBInt interface
 type PodcastDBInt interface {
 	CountRows() int
-	GetAll(limit uint16, offset uint16, by string) []models.SecurePodcast
+	GetAllPodcasts(limit uint16, offset uint16, by string) []models.SecurePodcast
 	GetPodcast(username string, podcastname string) *models.Podcast
 	CheckPodcastCreated(podID uint, podname string) models.Podcast
 	CreatePodcast(podcast *models.Podcast) error
@@ -39,7 +39,7 @@ func (DB *PodcastDB) CountRows() int {
 
 //GetAll : get all podcasts. not episodes just a podcast name!!
 //TODO: need to page. potentially filter by category etc here!! popularity etc
-func (DB *PodcastDB) GetAll(limit uint16, offset uint16, category string) []models.SecurePodcast {
+func (DB *PodcastDB) GetAllPodcasts(limit uint16, offset uint16, category string) []models.SecurePodcast {
 
 	var podcasts []models.SecurePodcast
 
@@ -56,6 +56,7 @@ func (DB *PodcastDB) GetAll(limit uint16, offset uint16, category string) []mode
 
 	if err != nil {
 		log.Println(err)
+		return podcasts
 	}
 
 	for rows.Next() {

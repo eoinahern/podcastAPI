@@ -26,7 +26,7 @@ func setUpEpisodeMocks() (EpisodeDB, *sql.DB, sqlmock.Sqlmock) {
 	return episodeDB, db, mock
 }
 
-func TestGetAllEPisodes(t *testing.T) {
+func TestGetAllEpisodes(t *testing.T) {
 
 	t.Parallel()
 
@@ -34,9 +34,8 @@ func TestGetAllEPisodes(t *testing.T) {
 
 	defer db.Close()
 
-	rows := sqlmock.NewRows(episodeColumns).AddRow(episode1.EpisodeID, episode1.PodID, episode1.Created, episode1.Updated, episode1.URL, episode1.Downloads, episode1.Blurb)
-	rows = rows.AddRow(episode2.EpisodeID, episode2.PodID, episode2.Created, episode2.Updated, episode2.URL, episode2.Downloads, episode2.Blurb)
-	mock.ExpectQuery("SELECT \\* FROM episodes").WithArgs(episode1.PodID).WillReturnRows(rows)
+	rows := sqlmock.NewRows(episodeColumns).AddRow(episode1.EpisodeID, episode1.PodID, episode1.Created, episode1.Updated, episode1.URL, episode1.Downloads, episode1.Blurb).AddRow(episode2.EpisodeID, episode2.PodID, episode2.Created, episode2.Updated, episode2.URL, episode2.Downloads, episode2.Blurb)
+	mock.ExpectQuery("SELECT \\* FROM episodes").WillReturnRows(rows)
 
 	episodes := episodeDB.GetAllEpisodes(int(episode1.PodID), 20, 0)
 

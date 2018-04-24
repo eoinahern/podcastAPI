@@ -58,11 +58,12 @@ func (DB *EpisodeDB) GetAllEpisodes(podcastid int, limit uint16, offset uint16) 
 	var episodes []models.Episode
 	rows, err := DB.Query(queryStr)
 
-	defer rows.Close()
-
 	if err != nil {
 		log.Println(err)
+		return episodes
 	}
+
+	defer rows.Close()
 
 	for rows.Next() {
 		var episode models.Episode
@@ -89,18 +90,13 @@ func (DB *EpisodeDB) AddEpisode(episode models.Episode) error {
 		log.Println(err)
 	}
 
-	res, err := stmt.Exec(episode.PodID, episode.Created, episode.Updated, episode.URL, episode.Downloads, episode.Blurb)
+	_, err = stmt.Exec(episode.PodID, episode.Created, episode.Updated, episode.URL, episode.Downloads, episode.Blurb)
 
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
 		return err
 	}
-
-	insertID, _ := res.LastInsertId()
-	rowsAffected, _ := res.RowsAffected()
-	fmt.Println(fmt.Sprintf("last insert id :  %d ", insertID))
-	fmt.Println(fmt.Sprintf("rows affected:  %d ", rowsAffected))
 
 	return err
 
