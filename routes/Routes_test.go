@@ -3,7 +3,6 @@ package routes
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -104,7 +103,7 @@ func TestGetPodcasts(t *testing.T) {
 
 	getPodcastsHandler := &GetPodcastsHandler{UserDB: &mocks.MockUserDB{}, PodcastDB: &mocks.MockPodcastDB{}}
 
-	request, err := http.NewRequest(http.MethodGet, host, nil)
+	request, err := http.NewRequest(http.MethodGet, "http://localhost/debug/podcasts?limit=20&offset=0", nil)
 	respWriter := httptest.NewRecorder()
 
 	if err != nil {
@@ -113,12 +112,12 @@ func TestGetPodcasts(t *testing.T) {
 
 	getPodcastsHandler.ServeHTTP(respWriter, request)
 
-	var podcasts []models.SecurePodcast
-	json.NewDecoder(respWriter.Body).Decode(&podcasts)
+	var podcastsPage *models.PodcastPage
+	json.NewDecoder(respWriter.Body).Decode(&podcastsPage)
 
-	assert.Equal(t, 2, len(podcasts))
-	assert.Equal(t, 2, podcasts[0].EpisodeNum)
-	assert.Equal(t, 2, podcasts[1].EpisodeNum)
+	assert.Equal(t, 2, len(podcastsPage.Data))
+	assert.Equal(t, 2, podcastsPage.Data[0].EpisodeNum)
+	assert.Equal(t, 2, podcastsPage.Data[1].EpisodeNum)
 
 }
 
@@ -179,7 +178,6 @@ func TestGetEpisode(t *testing.T) {
 	var page models.EpisodePage
 	json.NewDecoder(respWriter.Body).Decode(&page)
 
-	fmt.Println(page)
 	assert.Equal(t, uint(1), page.Data[0].EpisodeID)
 	assert.Equal(t, uint(2), page.Data[1].EpisodeID)
 

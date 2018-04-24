@@ -238,10 +238,11 @@ func (c *CreatePodcastHandler) ServeHTTP(w http.ResponseWriter, req *http.Reques
 func (g *GetPodcastsHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	queryParams := req.URL.Query()
-	fmt.Println(req.URL.RequestURI()) //need this to constuct next and previous links in Page object
 
 	i, _ := strconv.ParseUint(queryParams.Get("limit"), 10, 16)
 	limit := uint16(i)
+
+	fmt.Println(limit)
 
 	i, _ = strconv.ParseUint(queryParams.Get("offset"), 10, 16)
 	offset := uint16(i)
@@ -251,17 +252,14 @@ func (g *GetPodcastsHandler) ServeHTTP(w http.ResponseWriter, req *http.Request)
 		category = ""
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-
 	podcasts := g.PodcastDB.GetAll(limit, offset, category)
-	podcastsMarshaled, err := json.Marshal(podcasts)
+	//totalRows := g.PodcastDB.CountRows()
+	podcastPage := util.CreatePodcastPage(req, int(limit), int(offset), 100)
+	podcastPage.Data = podcasts
 
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(internalErr)
-	} else {
-		w.Write(podcastsMarshaled)
-	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(podcastPage)
+
 }
 
 func checkCategoryExists(category string) bool {
